@@ -17,11 +17,11 @@ public abstract class Core {
   private static final double ROOT_TWO = Math.sqrt(2);
   private static final double INVERSE_ROOT_TWO = 1/ROOT_TWO;
 
-  private static final int MAP_WIDTH    = 64;
-  private static final int MAP_HEIGHT   = 64;
+  private static final int MAP_WIDTH    = 128;
+  private static final int MAP_HEIGHT   = 128;
   private static final double MAP_RATIO = 1.0*MAP_WIDTH/MAP_HEIGHT;
 
-  private static final int CYCLES = 3;
+  private static final int CYCLES = 25;
 
   // private static final int LAYERS = 5;
 
@@ -34,11 +34,11 @@ public abstract class Core {
 
   public static void main(String[] args) {
     int[] map = randomNoise();
-    IOHelp.writeImage("../rnd.png", (BufferedImage)mapToImage(map));
+    IOHelp.writeImage("../results/rnd.png", (BufferedImage)mapToImage(map));
     for (int i = 0; i < CYCLES; i++) map = smoothMap(map);
     img = mapToImage(map);
-    IOHelp.writeImage("../avg.png", (BufferedImage)img);
-    IOHelp.saveToFile("../map.obj", new Map3D(map, MAP_WIDTH, MAP_HEIGHT).toString());
+    IOHelp.writeImage("../results/avg.png", (BufferedImage)img);
+    IOHelp.saveToFile("../results/map.obj", new Map3D(map, MAP_WIDTH, MAP_HEIGHT).toString());
     WINDOW.PANEL.repaint();
   }
 
