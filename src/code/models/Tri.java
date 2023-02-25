@@ -66,7 +66,7 @@ public class Tri {
   }
 
   public Vector2 getUVCoords(double u, double v) {
-    return vertUVs[1].scale(u).add(vertUVs[2].scale(v)).add(vertUVs[0].scale(1-u-v));
+    return vertUVs[0] == null ? new Vector2() : vertUVs[1].scale(u).add(vertUVs[2].scale(v)).add(vertUVs[0].scale(1-u-v));
   }
 
   public String toString() {

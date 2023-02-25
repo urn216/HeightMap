@@ -48,13 +48,22 @@ public abstract class Model {
       if (type.equals("v")) {vs.add(new Vector3(scan.nextDouble(), scan.nextDouble(), scan.nextDouble()));}
       else if (type.equals("vt")) {vts.add(new Vector2(scan.nextDouble(), scan.nextDouble()));}
       else if (type.equals("f")) {
-        int a = scan.nextInt(), A = scan.nextInt(), b = scan.nextInt(), B = scan.nextInt(), c = scan.nextInt(), C = scan.nextInt();
-        fs.add(new Tri(
-          new Vector3[]{vs.get(a-1), vs.get(b-1), vs.get(c-1)}, 
-          new Vector2[]{vts.get(A-1), vts.get(B-1), vts.get(C-1)}, 
-          new int[]{a, b, c}, 
-          new int[]{A, B, C}
-        ));
+        if (vts.isEmpty()) {
+          int a = scan.nextInt(), b = scan.nextInt(), c = scan.nextInt();
+          fs.add(new Tri(
+            new Vector3[]{vs.get(a-1), vs.get(b-1), vs.get(c-1)}, 
+            new int[]{a, b, c}
+          ));
+        }
+        else {
+          int a = scan.nextInt(), A = scan.nextInt(), b = scan.nextInt(), B = scan.nextInt(), c = scan.nextInt(), C = scan.nextInt();
+          fs.add(new Tri(
+            new Vector3[]{vs.get(a-1), vs.get(b-1), vs.get(c-1)}, 
+            new Vector2[]{vts.get(A-1), vts.get(B-1), vts.get(C-1)}, 
+            new int[]{a, b, c}, 
+            new int[]{A, B, C}
+          ));
+        }
       }
       scan.close();
     }

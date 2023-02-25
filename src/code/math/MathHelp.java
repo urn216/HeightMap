@@ -4,6 +4,10 @@ package code.math;
 * class helping do file stuff
 */
 public abstract class MathHelp {
+
+  public static final double ROOT_TWO = Math.sqrt(2);
+  public static final double INVERSE_ROOT_TWO = 1/ROOT_TWO;
+  
   /**
   * Clamps a value to one between an upper and lower bound.
   *
