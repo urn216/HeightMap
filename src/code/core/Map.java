@@ -1,49 +1,61 @@
 package code.core;
 
-import java.awt.image.BufferedImage;
-
 import java.util.Random;
 
 import code.math.IOHelp;
+import code.math.MathHelp;
 
 public class Map {
 
-  private final int w;
-  private final int h;
-  private final int[] noise;
-  private final int[] map;
+  private final int width;
+  private final int height;
+  private final Random rng;
 
-  private Map(int w, int h, int[] noise, int[] map) {
-    this.w = w;
-    this.h = h;
-    this.noise = noise;
-    this.map = map;
+  private float[] intMap;
+
+  private int layers = 0;
+
+  private Map(int width, int height, Random rng) {
+    this.width = width;
+    this.height = height;
+    this.rng = rng;
   }
 
   public static Map generateMap(int w, int h) {
-    Random random = new Random();
-    int[] noise = Noise.seededNoise(random, w, h);
-    IOHelp.writeImage("../results/noise.png", (BufferedImage)ImageProc.mapToImage(noise, w, h));
-    
-    int[] map = ImageProc.scaleMap(noise, w, h, w, h);
-    for (int i = 0; i < 25; i++) map = ImageProc.smoothMap(map, w, h);
+    Map map = new Map(w, h, new Random());
 
-    return new Map(w, h, noise, map);
+    map.addLayer(0);
+    map.addLayer(10);
+    map.addLayer(100);
+    map.addLayer(500);
+
+    return map;
   }
   
-  public int getW() {
-    return w;
+  public int getWidth() {
+    return width;
   }
 
-  public int getH() {
-    return h;
+  public int getHeight() {
+    return height;
   }
 
-  public int[] getNoise() {
-    return noise;
+  public float[] getIntMap() {
+    return intMap;
   }
 
-  public int[] getMap() {
-    return map;
+  public void addLayer(int smoothness) {
+    layers++;
+
+    float[] layer = Noise.seededNoise(rng, width * height);
+    IOHelp.writeImage("../results/layer" + layers + "_noise.png", ImageProc.mapToImage(layer, width, height));
+
+    for (int i = 0; i < smoothness; i++) layer = ImageProc.smootheMap(layer, width, height);
+
+    IOHelp.writeImage("../results/layer" + layers + "_avged.png", ImageProc.mapToImage(layer, width, height));
+    layer = ImageProc.mapContrast(layer, (float)MathHelp.clamp(smoothness*smoothness, 0, 200)-100);
+    IOHelp.writeImage("../results/layer" + layers + ".png", ImageProc.mapToImage(layer, width, height));
+
+    intMap = intMap == null ? layer : ImageProc.combineMaps(intMap, layer);
   }
 }

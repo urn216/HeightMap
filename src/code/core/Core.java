@@ -6,18 +6,17 @@ import code.math.IOHelp;
 import code.models.Map3D;
 
 import java.awt.Graphics;
-import java.awt.Image;
 
 public abstract class Core {
 
   public static final Window WINDOW = new Window();
 
-  private static final int MAP_WIDTH    = 100;
-  private static final int MAP_HEIGHT   = 100;
+  private static final int MAP_WIDTH    = 1000;
+  private static final int MAP_HEIGHT   = 1000;
   private static final double MAP_RATIO = 1.0*MAP_WIDTH/MAP_HEIGHT;
 
-  private static volatile Image img = new BufferedImage(MAP_WIDTH, MAP_HEIGHT, 2);
-  private static volatile Map   map;
+  private static volatile BufferedImage img = new BufferedImage(MAP_WIDTH, MAP_HEIGHT, 2);
+  private static volatile Map map;
 
   static {
     WINDOW.setFullscreen(false);
@@ -25,9 +24,11 @@ public abstract class Core {
 
   public static void main(String[] args) {
     map = Map.generateMap(MAP_WIDTH, MAP_HEIGHT);
-    img = ImageProc.mapToImage(map.getMap(), MAP_WIDTH, MAP_HEIGHT);
-    IOHelp.writeImage("../results/final.png", (BufferedImage)img);
-    IOHelp.saveToFile("../results/map.obj", new Map3D(map.getMap(), MAP_WIDTH, MAP_HEIGHT).toString());
+    img = ImageProc.mapToImage(map.getIntMap(), MAP_WIDTH, MAP_HEIGHT);
+
+    IOHelp.writeImage("../results/final.png", img);
+    IOHelp.saveToFile("../results/map.obj", new Map3D(map.getIntMap(), map.getWidth(), map.getHeight()).toString());
+
     WINDOW.PANEL.repaint();
   }
 

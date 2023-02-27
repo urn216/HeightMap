@@ -3,33 +3,53 @@ package code.core;
 import java.util.Random;
 
 public abstract class Noise {
-  public static int[] randomNoise(int w, int h) {
-    return seededNoise(new Random(), w, h);
+
+  /**
+   * Generates a {@code float} array with values pseudorandomly chosen between {@code -1f} and {@code 1f}.
+   * 
+   * @param size the length of the array to generate
+   * 
+   * @return an array of size {@code size} containing random values between {@code -1f} and {@code 1f}.
+   */
+  public static float[] randomNoise(int size) {
+    return seededNoise(new Random(), size);
   }
 
-  public static int[] seededNoise(Random random, int w, int h) {
-    int[] map = new int[w*h];
-    for (int i = 0; i < w; i++) {
-      for (int j = 0; j < h; j++) {
-        int height = random.nextInt(256);
-        map[i + w * j] = 255 << 24 | height << 16 | height << 8 | height;
-      }
+  /**
+   * Generates a {@code float} array with values pseudorandomly chosen between {@code -1f} and {@code 1f}. 
+   * Uses a given random number generator.
+   * 
+   * @param random the random number generator to use to generate the array.
+   * @param size the length of the array to generate
+   * 
+   * @return an array of size {@code size} containing random values between {@code -1f} and {@code 1f}.
+   */
+  public static float[] seededNoise(Random random, int size) {
+    float[] res = new float[size];
+    for (int i = 0; i < res.length; i++) {
+      res[i] = random.nextFloat(2)-1;
     }
 
-    return map;
+    return res;
   }
 
-  public static int[] sampleNoise(Random random, int[] original, int oW, int oH, int sW, int sH) {
-    if (sW > oW || sH > oH) return original;
+  /**
+   * Takes a random sample of noise from a given set of values between {@code -1f} and {@code 1f}.
+   * 
+   * @param random the random number generator to use in picking the sample.
+   * @param original a {@code float} array to sample from.
+   * @param size the size of the sample. Must be no larger than the length of the original array.
+   * 
+   * @return a sample of noise taken from a larger set.
+   */
+  public static float[] sampleNoise(Random random, float[] original, int size) {
+    if (size > original.length) return original;
 
-    int[] res = new int[sW*sH];
-    int xOff = random.nextInt(oW-sW);
-    int yOff = random.nextInt(oH-sH);
+    float[] res = new float[size];
+    int off = random.nextInt(original.length-res.length);
 
-    for (int i = 0; i < sW; i++) {
-      for (int j = 0; j < sH; j++) {
-        res[i + sW * j] = original[(i + xOff) + oW * (j + yOff)];
-      }
+    for (int i = 0; i < res.length; i++) {
+      res[i] = original[i + off];
     }
 
     return res;

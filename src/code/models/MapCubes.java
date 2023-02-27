@@ -3,13 +3,13 @@ package code.models;
 import code.math.Vector2;
 import code.math.Vector3;
 
-public class Map3D extends Model {
+public class MapCubes extends Model {
 
-  public Map3D(float[] map, int w, int h) {
+  public MapCubes(int[] map, int w, int h) {
     super(generateMesh(map, w, h));
   }
 
-  private static Object[][] generateMesh(float[] map, int w, int h) {
+  private static Object[][] generateMesh(int[] map, int w, int h) {
     Object[][] res = new Object[3][];
 
     Vector3[] verts = generateVerts(map, w, h);
@@ -20,15 +20,24 @@ public class Map3D extends Model {
     return res;
   }
 
-  private static Vector3[] generateVerts(float[] heights, int w, int h) {
-    Vector3[] res = new Vector3[heights.length];
-    for (int i = 0; i < res.length; i++) {
-      res[i] = new Vector3((i%w)-(w/2), heights[i]*20, (i/w)-(h/2));
+  private static Vector3[] generateVerts(int[] heights, int w, int h) {
+    Vector3[] res = new Vector3[heights.length*4];
+    for (int i = 0; i < w; i++) {
+      for (int j = 0; j < h; j++) {
+        double x = i-(w/2);
+        double y = (heights[i+j*w]&255);
+        double z = j-(h/2);
+        res[i*2   + w*2*(j*2)  ] = new Vector3(x-0.5, y, z-0.5);
+        res[i*2+1 + w*2*(j*2)  ] = new Vector3(x+0.5, y, z-0.5);
+        res[i*2   + w*2*(j*2+1)] = new Vector3(x-0.5, y, z+0.5);
+        res[i*2+1 + w*2*(j*2+1)] = new Vector3(x+0.5, y, z+0.5);
+      }
     }
     return res;
   }
 
   private static Tri[] generateFaces(Vector3[] verts, int w, int h) {
+    w*=2; h*=2;
     Tri[] res = new Tri[2*(w-1)*(h-1)];
     for (int z = 0; z < h-1; z++) {
       for (int x = 0; x < w-1; x++) {
