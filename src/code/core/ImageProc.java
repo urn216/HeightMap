@@ -89,16 +89,16 @@ public abstract class ImageProc {
     float[] res = new float[map.length];
 
     for (int i = 0; i < w; i++) {
+      final int left  = ((w + i - 1)%w);
+      final int right = ((i + 1)%w);
+
       for (int j = 0; j < h; j++) {
+        final int up    = w * ((h + j - 1)%h);
+        final int down  = w * ((j + 1)%h);
 
-        int left  = ((w + i - 1)%w);
-        int right = ((i + 1)%w);
-        int up    = w * ((h + j - 1)%h);
-        int down  = w * ((j + 1)%h);
-
-        float edges   = (float)MathHelp.avg(map[left + w * j], map[right + w * j], map[i + up],      map[i + down]    );
-        float corners = (float)MathHelp.avg(map[left + up],    map[right + up],    map[left + down], map[right + down]);
-        float ec      = (float)((edges + MathHelp.INVERSE_ROOT_TWO * corners) / (1+MathHelp.INVERSE_ROOT_TWO));
+        final float edges   = (float)MathHelp.avg(map[left + w * j], map[right + w * j], map[i + up],      map[i + down]    );
+        final float corners = (float)MathHelp.avg(map[left + up],    map[right + up],    map[left + down], map[right + down]);
+        final float ec      = (float)((edges + MathHelp.INVERSE_ROOT_TWO * corners) / (1+MathHelp.INVERSE_ROOT_TWO));
 
         res[i + w * j] = (float)MathHelp.avg(map[i + w * j], ec); 
       }

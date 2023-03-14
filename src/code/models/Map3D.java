@@ -23,7 +23,7 @@ public class Map3D extends Model {
   private static Vector3[] generateVerts(float[] heights, int w, int h) {
     Vector3[] res = new Vector3[heights.length];
     for (int i = 0; i < res.length; i++) {
-      res[i] = new Vector3((i%w)-(w/2), heights[i]*20, (i/w)-(h/2));
+      res[i] = new Vector3((i%w)-(w/2), heights[i]*100, (i/w)-(h/2));
     }
     return res;
   }

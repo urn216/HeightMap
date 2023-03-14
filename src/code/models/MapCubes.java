@@ -5,11 +5,11 @@ import code.math.Vector3;
 
 public class MapCubes extends Model {
 
-  public MapCubes(int[] map, int w, int h) {
+  public MapCubes(float[] map, int w, int h) {
     super(generateMesh(map, w, h));
   }
 
-  private static Object[][] generateMesh(int[] map, int w, int h) {
+  private static Object[][] generateMesh(float[] map, int w, int h) {
     Object[][] res = new Object[3][];
 
     Vector3[] verts = generateVerts(map, w, h);
@@ -20,12 +20,12 @@ public class MapCubes extends Model {
     return res;
   }
 
-  private static Vector3[] generateVerts(int[] heights, int w, int h) {
+  private static Vector3[] generateVerts(float[] heights, int w, int h) {
     Vector3[] res = new Vector3[heights.length*4];
     for (int i = 0; i < w; i++) {
       for (int j = 0; j < h; j++) {
         double x = i-(w/2);
-        double y = (heights[i+j*w]&255);
+        double y = (int)(heights[i+j*w]*100);
         double z = j-(h/2);
         res[i*2   + w*2*(j*2)  ] = new Vector3(x-0.5, y, z-0.5);
         res[i*2+1 + w*2*(j*2)  ] = new Vector3(x+0.5, y, z-0.5);
