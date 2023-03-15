@@ -21,6 +21,8 @@ public abstract class Core {
 
   static {
     WINDOW.setFullscreen(false);
+
+    if (!IOHelp.exists("../results/")) IOHelp.createDir("../results/");
   }
 
   public static void main(String[] args) {
