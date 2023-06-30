@@ -1,1 +1,2 @@
 Main-Class: code/core/Core
+Class-Path: ../lib/UI-1.0.6/UI-1.0.6.jar ../lib/Utilities-1.0.0/Utilities-1.0.0.jar

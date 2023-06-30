@@ -1,7 +1,7 @@
 package code.models;
 
-import code.math.Vector2;
-import code.math.Vector3;
+import mki.math.vector.Vector2;
+import mki.math.vector.Vector3;
 
 public class MapCubes extends Model {
 

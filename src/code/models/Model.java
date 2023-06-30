@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import code.math.IOHelp;
-import code.math.Vector2;
-import code.math.Vector3;
+import mki.io.FileIO;
+import mki.math.vector.Vector2;
+import mki.math.vector.Vector3;
 
 public abstract class Model {
 
@@ -36,7 +36,7 @@ public abstract class Model {
     List<Vector2> vts = new ArrayList<Vector2>();
     List<Tri> fs = new ArrayList<Tri>();
     String filename = "data/" + model;
-    List<String> allLines = IOHelp.readAllLines(filename, false);
+    List<String> allLines = FileIO.readAllLines(filename, false);
     for (String line : allLines) {
       Scanner scan = new Scanner(line);
       scan.useDelimiter("[/ ]+");

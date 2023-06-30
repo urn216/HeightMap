@@ -3,8 +3,8 @@ package code.core;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import code.math.IOHelp;
-import code.math.Vector2;
+import mki.io.FileIO;
+import mki.math.vector.Vector2;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -15,6 +15,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.ComponentAdapter;
 
 public final class Window {
@@ -33,7 +35,7 @@ public final class Window {
     FRAME.getContentPane().add(PANEL);
     FRAME.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     FRAME.setResizable(true);
-    BufferedImage image = IOHelp.readImage("icon.png");
+    BufferedImage image = FileIO.readImage("icon.png");
     FRAME.setIconImage(image);
     
     GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -58,6 +60,34 @@ public final class Window {
         if (!isFullScreen()) {
           smallScreenX = screenSizeX;
           smallScreenY = screenSizeY;
+        }
+      }
+    });
+    FRAME.addKeyListener(new KeyAdapter() {
+      @Override
+      public void keyPressed(KeyEvent e) {
+        switch(e.getKeyCode()) {
+          case KeyEvent.VK_W:
+          Core.updateMap(0, -10);
+          break;
+          case KeyEvent.VK_A:
+          Core.updateMap(-10, 0);
+          break;
+          case KeyEvent.VK_S:
+          Core.updateMap(0, 10);
+          break;
+          case KeyEvent.VK_D:
+          Core.updateMap(10, 0);
+          break;
+          case KeyEvent.VK_EQUALS:
+          Core.MAP_SCALE*=1.5;
+          Core.updateMap(0, 0);
+          break;
+          case KeyEvent.VK_MINUS:
+          Core.MAP_SCALE/=1.5;
+          Core.updateMap(0, 0);
+          break;
+          default:
         }
       }
     });
