@@ -1,5 +1,6 @@
 package code.models;
 
+import code.core.Core;
 import mki.math.vector.Vector2;
 import mki.math.vector.Vector3;
 
@@ -23,7 +24,7 @@ public class Map3D extends Model {
   private static Vector3[] generateVerts(float[] heights, int w, int h) {
     Vector3[] res = new Vector3[heights.length];
     for (int i = 0; i < res.length; i++) {
-      res[i] = new Vector3((i%w)-(w/2), heights[i]*100, (i/w)-(h/2));
+      res[i] = new Vector3((i%w)-(w/2), Math.max(heights[i], -0.0234375)*100*Core.MAP_SCALE, (i/w)-(h/2));
     }
     return res;
   }

@@ -16,7 +16,7 @@ public class Map {
   
   private int layers = 0;
   
-  private Map(int width, int height, long seed) {
+  protected Map(int width, int height, long seed) {
     this.width = width;
     this.height = height;
     this.rng = new Random(seed);
@@ -24,7 +24,11 @@ public class Map {
   }
   
   public static Map generateMap(int w, int h, int octaves) {
-    Map map = new Map(w, h, System.currentTimeMillis());
+    return generateMap(w, h, octaves, System.currentTimeMillis());
+  }
+
+  public static Map generateMap(int w, int h, int octaves, long seed) {
+    Map map = new Map(w, h, seed);
     
     map.generateGrid(0, 0, octaves, true);
     
@@ -45,19 +49,22 @@ public class Map {
   
   public void generateGrid(double xOff, double yOff, int octaves, boolean bigPrint) {
     this.heightMap = new float[this.width*this.height];
+
+    xOff = xOff*Core.MAP_SCALE-this.width /2.0;
+    yOff = yOff*Core.MAP_SCALE-this.height/2.0;
     
     for (int o = 0; o < octaves; o++) {
       double xOctOff = o*1000;
       double yOctOff = o*1000;
       double scale = Math.pow(2, o);
-      double damper = 50*Core.MAP_SCALE;
+      double damper = 500*Core.MAP_SCALE;
 
       for (int x = 0; x < this.width; x++) {
         for (int y = 0; y < this.height; y++) {
           this.heightMap[x+y*this.width] += noise.evaluate(
             xOctOff+((x+xOff)*scale/damper), 
             yOctOff+((y+yOff)*scale/damper)
-          )/scale/(5/Core.MAP_SCALE);
+          )/scale;
         }
       }
 

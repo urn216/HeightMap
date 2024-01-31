@@ -80,11 +80,11 @@ public final class Window {
           Core.updateMap(10, 0);
           break;
           case KeyEvent.VK_EQUALS:
-          Core.MAP_SCALE*=1.5;
+          Core.MAP_SCALE*=2;
           Core.updateMap(0, 0);
           break;
           case KeyEvent.VK_MINUS:
-          Core.MAP_SCALE/=1.5;
+          Core.MAP_SCALE*=0.5;
           Core.updateMap(0, 0);
           break;
           default:

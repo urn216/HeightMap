@@ -14,8 +14,8 @@ public abstract class Core {
 
   public static double MAP_SCALE = 1;
 
-  private static final int MAP_WIDTH    = 100;
-  private static final int MAP_HEIGHT   = 100;
+  private static final int MAP_WIDTH    = 360;
+  private static final int MAP_HEIGHT   = 360;
   private static final int MAP_OCTAVES  = 10;
   private static final double MAP_RATIO = 1.0*MAP_WIDTH/MAP_HEIGHT;
 
@@ -27,16 +27,14 @@ public abstract class Core {
   static {
     WINDOW.setFullscreen(false);
 
-    // if (!IOHelp.exists("../results/")) IOHelp.createDir("../results/");
     FileIO.createDir("../results/");
-
   }
 
   public static void main(String[] args) {
     map = Map.generateMap(MAP_WIDTH, MAP_HEIGHT, MAP_OCTAVES);
     img = ImageProc.mapToImage(map.getHeightMap(), MAP_WIDTH, MAP_HEIGHT);
 
-    FileIO.writeImage("../results/final.png", img);
+    FileIO.writeImage("../results/final.png",    img);
     FileIO.saveToFile("../results/map.obj",      new Map3D(map.getHeightMap(), map.getWidth(), map.getHeight()).toString());
     FileIO.saveToFile("../results/mapBlock.obj", new MapCubes(map.getHeightMap(), map.getWidth(), map.getHeight()).toString());
 

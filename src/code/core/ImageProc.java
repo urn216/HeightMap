@@ -120,14 +120,14 @@ public abstract class ImageProc {
    */
   public static BufferedImage mapToImage(float[] map, int w, int h) {
     BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-    int[] ints = new int[map.length];
+    int[] rgbArray = new int[map.length];
 
     for (int i = 0; i < map.length; i++) {
       int height = (int)MathHelp.clamp((map[i] + 1) * 128, 0, 255);
-      ints[i] = 255 << 24 | (height < 130 && height > 125 ? height : 0) << 16 | height << 8 | (height <= 125 ? height : 0);
+      rgbArray[i] = 255 << 24 | (height < 130 && height > 125 ? height : 0) << 16 | height << 8 | (height <= 125 ? height : 0);
     }
 
-    img.setRGB(0, 0, w, h, ints, 0, w);
+    img.setRGB(0, 0, w, h, rgbArray, 0, w);
     return img;
   }
 }
