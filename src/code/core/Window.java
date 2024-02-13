@@ -68,24 +68,29 @@ public final class Window {
       public void keyPressed(KeyEvent e) {
         switch(e.getKeyCode()) {
           case KeyEvent.VK_W:
-          Core.updateMap(0, -10);
+          Core.updateMap(0, -10/Core.MAP_SCALE);
           break;
           case KeyEvent.VK_A:
-          Core.updateMap(-10, 0);
+          Core.updateMap(-10/Core.MAP_SCALE, 0);
           break;
           case KeyEvent.VK_S:
-          Core.updateMap(0, 10);
+          Core.updateMap(0, 10/Core.MAP_SCALE);
           break;
           case KeyEvent.VK_D:
-          Core.updateMap(10, 0);
+          Core.updateMap(10/Core.MAP_SCALE, 0);
           break;
           case KeyEvent.VK_EQUALS:
           Core.MAP_SCALE*=2;
           Core.updateMap(0, 0);
+          System.out.println(Core.MAP_SCALE);
           break;
           case KeyEvent.VK_MINUS:
           Core.MAP_SCALE*=0.5;
           Core.updateMap(0, 0);
+          System.out.println(Core.MAP_SCALE);
+          break;
+          case KeyEvent.VK_ENTER:
+          Core.printScreenToFiles();
           break;
           default:
         }

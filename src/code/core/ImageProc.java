@@ -124,7 +124,12 @@ public abstract class ImageProc {
 
     for (int i = 0; i < map.length; i++) {
       int height = (int)MathHelp.clamp((map[i] + 1) * 128, 0, 255);
-      rgbArray[i] = 255 << 24 | (height < 130 && height > 125 ? height : 0) << 16 | height << 8 | (height <= 125 ? height : 0);
+      rgbArray[i] = 
+      255 << 24 | 
+      (height > 127 ? height > 130 ? height/6 : height   : height/6) << 16 | //R
+      (height > 127 ? height > 130 ? height   : height   : height/2) << 8  | //G
+      (height > 127 ? height > 130 ? height/3 : height/2 : height  );        //B
+      //                               LAND       SAND      OCEAN
     }
 
     img.setRGB(0, 0, w, h, rgbArray, 0, w);

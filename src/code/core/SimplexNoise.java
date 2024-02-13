@@ -50,8 +50,8 @@ public class SimplexNoise {
     }
   }
   
-  private static int FastFloor(double x) {
-    int xi = (int)x;
+  private static long FastFloor(double x) {
+    long xi = (long)x;
     return x < xi ? xi - 1 : xi;
   }
   
@@ -89,8 +89,8 @@ public class SimplexNoise {
     double xs = x + stretchOffset;
     double ys = y + stretchOffset;
     
-    int xsb = FastFloor(xs);
-    int ysb = FastFloor(ys);
+    long xsb = FastFloor(xs);
+    long ysb = FastFloor(ys);
     
     double squishOffset = (xsb + ysb) * SQUISH;
     double dx0 = x - (xsb + squishOffset);
@@ -101,11 +101,12 @@ public class SimplexNoise {
     
     double inSum = xins + yins;
     
-    int hash =
-    (int)(xins - yins + 1) |
-    (int)(inSum) << 1 |
-    (int)(inSum + yins) << 2 |
-    (int)(inSum + xins) << 4;
+    int hash = (int)(
+      (long)(xins - yins + 1) |
+      (long)(inSum) << 1 |
+      (long)(inSum + yins) << 2 |
+      (long)(inSum + xins) << 4
+    );
     
     Contribution c = lookup[hash];
     
@@ -117,10 +118,10 @@ public class SimplexNoise {
       double attn = 2 - dx * dx - dy * dy;
       if (attn > 0)
       {
-        int px = xsb + c.xsb;
-        int py = ysb + c.ysb;
+        int px = (int)xsb + c.xsb;
+        int py = (int)ysb + c.ysb;
         
-        byte i = perm2D[(perm[px & 0xFF] + py) & 0xFF];
+        byte i = perm2D[(int)(perm[(int)(px & 0xFF)] + py) & 0xFF];
         double valuePart = gradients[i] * dx + gradients[i + 1] * dy;
         
         attn *= attn;

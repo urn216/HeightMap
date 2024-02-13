@@ -6,6 +6,11 @@ import mki.io.FileIO;
 // import code.math.MathHelp;
 
 public class Map {
+
+  private static final double BEACH_FLATTEN_EXP = 1.5;
+
+  private static final double CUTOFF = Math.pow(1/BEACH_FLATTEN_EXP, 1/(BEACH_FLATTEN_EXP-1));
+  private static final float  OFFSET = (float)(CUTOFF-Math.pow(CUTOFF, BEACH_FLATTEN_EXP));
   
   private final int width;
   private final int height;
@@ -69,6 +74,15 @@ public class Map {
       }
 
       if (bigPrint) FileIO.writeImage("../results/layer" + o + "_octave.png", ImageProc.mapToImage(heightMap, width, height));
+    }
+
+    for (int x = 0; x < this.width; x++) {
+      for (int y = 0; y < this.height; y++) {
+        float h = this.heightMap[x+y*this.width];
+        this.heightMap[x+y*this.width] = h > 0?
+          h >  CUTOFF ? h-OFFSET :  (float)Math.pow( h, BEACH_FLATTEN_EXP):
+          h < -CUTOFF ? h+OFFSET : -(float)Math.pow(-h, BEACH_FLATTEN_EXP);
+      }
     }
   }
   

@@ -13,9 +13,10 @@ public abstract class Core {
   public static final Window WINDOW = new Window();
 
   public static double MAP_SCALE = 1;
+  // public static double MAP_SCALE = 1/Math.pow(2, 55);
 
-  private static final int MAP_WIDTH    = 360;
-  private static final int MAP_HEIGHT   = 360;
+  private static final int MAP_WIDTH    = 128;
+  private static final int MAP_HEIGHT   = 128;
   private static final int MAP_OCTAVES  = 10;
   private static final double MAP_RATIO = 1.0*MAP_WIDTH/MAP_HEIGHT;
 
@@ -31,14 +32,19 @@ public abstract class Core {
   }
 
   public static void main(String[] args) {
-    map = Map.generateMap(MAP_WIDTH, MAP_HEIGHT, MAP_OCTAVES);
-    img = ImageProc.mapToImage(map.getHeightMap(), MAP_WIDTH, MAP_HEIGHT);
+    Core.map = Map.generateMap(MAP_WIDTH, MAP_HEIGHT, MAP_OCTAVES);
 
+    Core.img = ImageProc.mapToImage(map.getHeightMap(), MAP_WIDTH, MAP_HEIGHT);
+
+    Core.printScreenToFiles();
+
+    WINDOW.PANEL.repaint();
+  }
+
+  public static void printScreenToFiles() {
     FileIO.writeImage("../results/final.png",    img);
     FileIO.saveToFile("../results/map.obj",      new Map3D(map.getHeightMap(), map.getWidth(), map.getHeight()).toString());
     FileIO.saveToFile("../results/mapBlock.obj", new MapCubes(map.getHeightMap(), map.getWidth(), map.getHeight()).toString());
-
-    WINDOW.PANEL.repaint();
   }
 
   public static void updateMap(double xOff, double yOff) {
