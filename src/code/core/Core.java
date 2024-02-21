@@ -3,6 +3,7 @@ package code.core;
 import java.awt.image.BufferedImage;
 
 import mki.io.FileIO;
+// import code.models.Chunk;
 import code.models.Map3D;
 import code.models.MapCubes;
 
@@ -40,6 +41,12 @@ public abstract class Core {
 
     Core.printScreenToFiles();
 
+    // for (int i = 0; i < 3; i++) {
+    //   for (int j = 0; j < 3; j++) {
+    //     FileIO.saveToFile("../results/chunk_"+j+"_"+i+".obj", new Chunk(j, i).toString());
+    //   }
+    // }
+
     WINDOW.PANEL.repaint();
   }
 
@@ -67,15 +74,13 @@ public abstract class Core {
     gra.drawImage(img.getScaledInstance((int)(size*MAP_RATIO), size, BufferedImage.SCALE_DEFAULT), 0, 0, null);
   }
 
-
-
   private static final String MAT_FILE = "newmtl mat\n"+
   "Ka 1.000 1.000 1.000\n"+
   "Kd 1.000 1.000 1.000\n"+
-  "Ks 0.000 0.000 0.000\n"+
+  // "Ks 0.000 0.000 0.000\n"+
   "d 1.0\n"+
-  "illum 0\n"+
+  "illum 1\n"+
   "map_Ka final.png\n"+
-  "map_Kd final.png\n"+
-  "map_Ks final.png\n";
+  "map_Kd final.png\n";
+  // "map_Ks final.png\n";
 }

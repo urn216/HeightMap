@@ -126,10 +126,10 @@ public abstract class ImageProc {
       int height = (int)MathHelp.clamp((map[i] + 1) * 128, 0, 255);
       rgbArray[i] = 
       255 << 24 | 
-      (height > 127 ? height > 130 ? height/6 : height   : height/6) << 16 | //R
-      (height > 127 ? height > 130 ? height   : height   : height/2) << 8  | //G
-      (height > 127 ? height > 130 ? height/3 : height/2 : height  );        //B
-      //                               LAND       SAND      OCEAN
+      (height > 127 ? height > 130 ? height > 240 ? 2*height-255 :  36+height/4 : 52+height : Math.max(0,   height   - 81)) << 16 | //R
+      (height > 127 ? height > 130 ? height > 240 ? 2*height-255 : 200-height/3 : 47+height : Math.max(0, 2*height   -140)) << 8  | //G
+      (height > 127 ? height > 130 ? height > 240 ? 2*height-255 :  20+height/4 :  4+height :              (height/2)+ 83 );        //B
+      //                                               PEAKS          LAND         SAND              OCEAN
     }
 
     img.setRGB(0, 0, w, h, rgbArray, 0, w);
