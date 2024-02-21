@@ -43,7 +43,7 @@ public class MapCubes extends Model {
     Vector2[] res = new Vector2[w*h];
 
     for (int i = 0; i < res.length; i++) {
-      res[i] = new Vector2((i%w+0.5)/(1.0*w), h-1-(i/w+0.5)/(1.0*h));
+      res[i] = new Vector2((i%w+0.5)/w, 1-(i/w+0.5)/h);
     }
 
     return res;
@@ -60,7 +60,7 @@ public class MapCubes extends Model {
     int i = 0;
     for (int z = 0; z < 2*h-1; z++) {
       for (int x = 0; x < w2-1; x+=(z%2==0?1:2)) {
-        int a = (x) + (z+1) * w2, b = (x+1) + (z+1) * w2, c = (x) + (z) * w2, d = (x+1) + (z) * w2;
+        int a = (x) + (z) * w2, b = (x+1) + (z) * w2, c = (x) + (z+1) * w2, d = (x+1) + (z+1) * w2;
         int uv = (int)(x/(2.0*w-1)*w) + (int)(z/(2.0*h-1)*h)*w;
         res[i++] = new Tri(
           new Vector3[]{verts[a], verts[d], verts[b]},

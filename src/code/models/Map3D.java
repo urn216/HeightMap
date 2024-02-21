@@ -42,8 +42,8 @@ public class Map3D extends Model {
   private static Vector2[] generateUVs(int w, int h) {
     Vector2[] res = new Vector2[w*h + 4];
 
-    for (int i = 0; i < res.length-1; i++) {
-      res[i] = new Vector2(((i%w)+0.5)/w, h-1-((i/w)+0.5)/h);
+    for (int i = 0; i < res.length-4; i++) {
+      res[i] = new Vector2((i%w+0.5)/w, 1-(i/w+0.5)/h);
     }
 
     res[res.length-4] = new Vector2(      0.5/w,       0.5/h);
