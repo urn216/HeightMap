@@ -94,6 +94,7 @@ public abstract class Model {
 
   public String toString() {
     StringBuilder res = new StringBuilder(1000);
+    res.append("mtllib mat.mtl\nusemtl mat\n");
     res.append("o " + this.getClass().getSimpleName() + "\n");
     for (Vector3 v : verts) res.append("v " + v.x + " " + v.y + " " + v.z + "\n");
     for (Vector2 vt : vertUVs) res.append("vt " + vt.x + " " + vt.y + "\n");

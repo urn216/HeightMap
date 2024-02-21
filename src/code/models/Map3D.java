@@ -10,7 +10,7 @@ public class Map3D extends Model {
     super(generateMesh(map, w, h));
   }
 
-  private static Object[][] generateMesh(float[] map, int w, int h) {
+  protected static Object[][] generateMesh(float[] map, int w, int h) {
     Object[][] res = new Object[3][];
 
     Vector3[] verts = generateVerts(map, w, h);
@@ -25,10 +25,10 @@ public class Map3D extends Model {
   private static Vector3[] generateVerts(float[] heights, int w, int h) {
     Vector3[] res = new Vector3[heights.length+4];
 
-    double oceanHeight = -0.125*Core.MAP_SCALE;
+    double oceanHeight = -0.0078125*Core.MAP_SCALE;
 
     for (int i = 0; i < res.length-4; i++) {
-      res[i] = new Vector3((i%w)-(w/2.0), heights[i]*100*Core.MAP_SCALE, h-1-(i/w)-(h/2.0));
+      res[i] = new Vector3((i%w)-(w/2.0), heights[i]*100*Core.MAP_SCALE, (i/w)-(h/2.0));
     }
 
     res[res.length-4] = new Vector3(-w/2.0    , oceanHeight,  h/2.0 - 1);
@@ -43,13 +43,13 @@ public class Map3D extends Model {
     Vector2[] res = new Vector2[w*h + 4];
 
     for (int i = 0; i < res.length-1; i++) {
-      res[i] = new Vector2((i%w)/(1.0*w), (i/w)/(1.0*h));
+      res[i] = new Vector2(((i%w)+0.5)/w, h-1-((i/w)+0.5)/h);
     }
 
-    res[res.length-4] = new Vector2(0.0, 0.0);
-    res[res.length-3] = new Vector2(1.0, 0.0);
-    res[res.length-2] = new Vector2(0.0, 1.0);
-    res[res.length-1] = new Vector2(1.0, 1.0);
+    res[res.length-4] = new Vector2(      0.5/w,       0.5/h);
+    res[res.length-3] = new Vector2(1.0 - 0.5/w,       0.5/h);
+    res[res.length-2] = new Vector2(      0.5/w, 1.0 - 0.5/h);
+    res[res.length-1] = new Vector2(1.0 - 0.5/w, 1.0 - 0.5/h);
 
     return res;
   }
@@ -59,7 +59,7 @@ public class Map3D extends Model {
 
     for (int z = 0; z < h-1; z++) {
       for (int x = 0; x < w-1; x++) {
-        int a = (x) + (z+1) * w, b = (x+1) + (z+1) * w, c = (x) + (z) * w, d = (x+1) + (z) * w;
+        int a = (x) + (z) * w, b = (x+1) + (z) * w, c = (x) + (z+1) * w, d = (x+1) + (z+1) * w;
         res[2*(x + z * (w-1))]   = new Tri(
           new Vector3[]{verts  [a], verts  [d], verts  [b]}, 
           new Vector2[]{vertUVs[a], vertUVs[d], vertUVs[b]},

@@ -13,28 +13,30 @@ public abstract class Core {
   public static final Window WINDOW = new Window();
 
   public static double MAP_SCALE = 1;
+  public static final int MAP_OCTAVES  = 10;
   // public static double MAP_SCALE = 1/Math.pow(2, 55);
 
   private static final int MAP_WIDTH    = 128;
   private static final int MAP_HEIGHT   = 128;
-  private static final int MAP_OCTAVES  = 10;
   private static final double MAP_RATIO = 1.0*MAP_WIDTH/MAP_HEIGHT;
 
   private static volatile BufferedImage img = new BufferedImage(MAP_WIDTH, MAP_HEIGHT, 2);
-  private static volatile Map map;
 
   private static volatile double x = 0, y = 0;
+
+  private static volatile float[] heightMap;
 
   static {
     WINDOW.setFullscreen(false);
 
     FileIO.createDir("../results/");
+
+    MapGenerator.initialise();
   }
 
   public static void main(String[] args) {
-    Core.map = Map.generateMap(MAP_WIDTH, MAP_HEIGHT, MAP_OCTAVES);
-
-    Core.img = ImageProc.mapToImage(map.getHeightMap(), MAP_WIDTH, MAP_HEIGHT);
+    Core.heightMap = MapGenerator.generateHeights(x, y, MAP_WIDTH, MAP_HEIGHT, MAP_OCTAVES, true);
+    Core.img = ImageProc.mapToImage(Core.heightMap, MAP_WIDTH, MAP_HEIGHT);
 
     Core.printScreenToFiles();
 
@@ -43,13 +45,15 @@ public abstract class Core {
 
   public static void printScreenToFiles() {
     FileIO.writeImage("../results/final.png",    img);
-    FileIO.saveToFile("../results/map.obj",      new Map3D(map.getHeightMap(), map.getWidth(), map.getHeight()).toString());
-    FileIO.saveToFile("../results/mapBlock.obj", new MapCubes(map.getHeightMap(), map.getWidth(), map.getHeight()).toString());
+    FileIO.saveToFile("../results/map.obj",      new Map3D(heightMap, MAP_WIDTH, MAP_HEIGHT).toString());
+    FileIO.saveToFile("../results/mapBlock.obj", new MapCubes(heightMap, MAP_WIDTH, MAP_HEIGHT).toString());
+    FileIO.saveToFile("../results/mat.mtl",      MAT_FILE);
   }
 
   public static void updateMap(double xOff, double yOff) {
-    map.generateGrid(x+=xOff, y+=yOff, MAP_OCTAVES, false);
-    img = ImageProc.mapToImage(map.getHeightMap(), MAP_WIDTH, MAP_HEIGHT);
+    Core.heightMap = MapGenerator.generateHeights(x+=xOff, y+=yOff, MAP_WIDTH, MAP_HEIGHT, MAP_OCTAVES, false);
+    Core.img = ImageProc.mapToImage(heightMap, MAP_WIDTH, MAP_HEIGHT);
+
     WINDOW.PANEL.repaint();
   }
 
@@ -62,4 +66,16 @@ public abstract class Core {
     int size = Math.min((int)(WINDOW.screenWidth()/MAP_RATIO), WINDOW.screenHeight());
     gra.drawImage(img.getScaledInstance((int)(size*MAP_RATIO), size, BufferedImage.SCALE_DEFAULT), 0, 0, null);
   }
+
+
+
+  private static final String MAT_FILE = "newmtl mat\n"+
+  "Ka 1.000 1.000 1.000\n"+
+  "Kd 1.000 1.000 1.000\n"+
+  "Ks 0.000 0.000 0.000\n"+
+  "d 1.0\n"+
+  "illum 0\n"+
+  "map_Ka final.png\n"+
+  "map_Kd final.png\n"+
+  "map_Ks final.png\n";
 }

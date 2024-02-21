@@ -30,10 +30,10 @@ public class MapCubes extends Model {
         double x = i-(w/2.0);
         double y = (Math.max(Math.floor(heights[i+j*w]*100*Core.MAP_SCALE), Math.floor(-0.5*Core.MAP_SCALE)+0.875));
         double z = j-(h/2.0);
-        res[i*2   + w*2*(j*2)  ] = new Vector3(x-0.5, y, -z+0.5);
-        res[i*2+1 + w*2*(j*2)  ] = new Vector3(x+0.5, y, -z+0.5);
-        res[i*2   + w*2*(j*2+1)] = new Vector3(x-0.5, y, -z-0.5);
-        res[i*2+1 + w*2*(j*2+1)] = new Vector3(x+0.5, y, -z-0.5);
+        res[i*2   + w*2*(j*2)  ] = new Vector3(x-0.5, y, z-0.5);
+        res[i*2+1 + w*2*(j*2)  ] = new Vector3(x+0.5, y, z-0.5);
+        res[i*2   + w*2*(j*2+1)] = new Vector3(x-0.5, y, z+0.5);
+        res[i*2+1 + w*2*(j*2+1)] = new Vector3(x+0.5, y, z+0.5);
       }
     }
     return res;
@@ -43,7 +43,7 @@ public class MapCubes extends Model {
     Vector2[] res = new Vector2[w*h];
 
     for (int i = 0; i < res.length; i++) {
-      res[i] = new Vector2((i%w+0.5)/(1.0*w), (i/w+0.5)/(1.0*h));
+      res[i] = new Vector2((i%w+0.5)/(1.0*w), h-1-(i/w+0.5)/(1.0*h));
     }
 
     return res;
