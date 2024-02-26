@@ -74,10 +74,10 @@ public final class Window {
           Core.updateMap(-10/Core.MAP_SCALE, 0);
           break;
           case KeyEvent.VK_S:
-          Core.updateMap(0, 10/Core.MAP_SCALE);
+          Core.updateMap(0,  10/Core.MAP_SCALE);
           break;
           case KeyEvent.VK_D:
-          Core.updateMap(10/Core.MAP_SCALE, 0);
+          Core.updateMap( 10/Core.MAP_SCALE, 0);
           break;
           case KeyEvent.VK_EQUALS:
           Core.MAP_SCALE*=2;

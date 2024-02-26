@@ -1,4 +1,4 @@
-package code.core;
+package code.generation;
 
 import java.util.Random;
 

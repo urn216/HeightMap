@@ -1,4 +1,6 @@
-package code.core;
+package code.generation;
+
+import code.core.Core;
 
 // import java.util.Random;
 

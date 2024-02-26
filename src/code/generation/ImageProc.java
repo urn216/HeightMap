@@ -1,10 +1,14 @@
-package code.core;
+package code.generation;
 
 import mki.math.MathHelp;
 
 import java.awt.image.BufferedImage;
 
 public abstract class ImageProc {
+
+  private static final int SNOW_GRASS_BOUND = 240;
+  private static final int GRASS_SAND_BOUND = 130;
+  private static final int SAND_WATER_BOUND = 127;
 
   /**
    * Changes the contrast of an array of {@code float}s between {@code -1f} and {@code 1f}.
@@ -124,12 +128,16 @@ public abstract class ImageProc {
 
     for (int i = 0; i < map.length; i++) {
       int height = (int)MathHelp.clamp((map[i] + 1) * 128, 0, 255);
-      rgbArray[i] = 
-      255 << 24 | 
-      (height > 127 ? height > 130 ? height > 240 ? 2*height-255 :  36+height/4 : 52+height : Math.max(0,   height   - 81)) << 16 | //R
-      (height > 127 ? height > 130 ? height > 240 ? 2*height-255 : 200-height/3 : 47+height : Math.max(0, 2*height   -140)) << 8  | //G
-      (height > 127 ? height > 130 ? height > 240 ? 2*height-255 :  20+height/4 :  4+height :              (height/2)+ 83 );        //B
-      //                                               PEAKS          LAND         SAND              OCEAN
+      rgbArray[i] = 255 << 24;
+
+      if (height <= SAND_WATER_BOUND)      // OCEAN
+        rgbArray[i] |= Math.max(0,   height -  81) << 16 | Math.max(0, 2*height - 140) <<  8 | height/2 + 83;
+      else if (height <= GRASS_SAND_BOUND) // SAND
+        rgbArray[i] |=  52+height   << 16 |  47+height   << 8 |   4+height  ;
+      else if (height <= SNOW_GRASS_BOUND) // LAND
+        rgbArray[i] |=  36+height/4 << 16 | 200-height/3 << 8 |  20+height/4;
+      else                                 // PEAKS
+        rgbArray[i] |=-255+height*2 << 16 |-255+height*2 << 8 |-255+height*2;
     }
 
     img.setRGB(0, 0, w, h, rgbArray, 0, w);

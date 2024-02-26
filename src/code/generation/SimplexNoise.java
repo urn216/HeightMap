@@ -1,4 +1,4 @@
-package code.core;
+package code.generation;
 
 public class SimplexNoise {
   private static final double STRETCH = (1/Math.sqrt(2+1)-1)/2;
