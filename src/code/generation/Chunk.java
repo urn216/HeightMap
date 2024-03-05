@@ -14,7 +14,7 @@ public class Chunk {
   private final Map3D model;
 
   public Chunk(int x, int z) {
-    this.heightMap = MapGenerator.generateHeights(x*Core.CHUNK_SIZE, z*Core.CHUNK_SIZE, Core.CHUNK_SIZE+1, Core.CHUNK_SIZE+1, Core.MAP_OCTAVES, false);
+    this.heightMap = MapGenerator.generateHeights(x/Core.MAP_SCALE*Core.CHUNK_SIZE, z/Core.MAP_SCALE*Core.CHUNK_SIZE, Core.CHUNK_SIZE+1, Core.CHUNK_SIZE+1, Core.MAP_OCTAVES, false);
     this.img = ImageProc.mapToImage(this.heightMap, Core.CHUNK_SIZE+1, Core.CHUNK_SIZE+1);
     this.model = new Map3D(this.heightMap, Core.CHUNK_SIZE+1, Core.CHUNK_SIZE+1);
   }

@@ -81,11 +81,13 @@ public final class Window {
           break;
           case KeyEvent.VK_EQUALS:
           Core.MAP_SCALE*=2;
+          World.regenChunks();
           Core.updateMap(0, 0);
           System.out.println(Core.MAP_SCALE);
           break;
           case KeyEvent.VK_MINUS:
           Core.MAP_SCALE*=0.5;
+          World.regenChunks();
           Core.updateMap(0, 0);
           System.out.println(Core.MAP_SCALE);
           break;
