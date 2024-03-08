@@ -2,94 +2,164 @@ package code.core;
 
 import java.awt.image.BufferedImage;
 
+import code.generation.Chunk;
 import mki.io.FileIO;
-import code.generation.ImageProc;
-import code.generation.MapGenerator;
-import code.models.Map3D;
-import code.models.MapCubes;
+import mki.math.vector.Vector3;
+import mki.rendering.Constants;
+import mki.rendering.renderers.Renderer;
+import mki.ui.control.UIController;
+import mki.world.Camera3D;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+
+enum State {
+  MAINMENU,
+  RUN,
+  SPLASH
+}
 
 public abstract class Core {
 
-  public static final Window WINDOW = new Window();
+  public static final Window WINDOW;
+  
+  private static final long TICKS_PER_SECOND = 60;
+  private static final long MILLISECONDS_PER_TICK = 900/TICKS_PER_SECOND;
+
+  private static final long START_TIME = System.currentTimeMillis();
+  private static final int SPLASH_TIME = 1000;
+  
+  private static final BufferedImage SPLASH;
+
+  private static State state = State.SPLASH;
+  
+  private static boolean quit = false;
 
   public static double MAP_SCALE = 1;
   public static final int MAP_OCTAVES  = 10;
   // public static double MAP_SCALE = 1/Math.pow(2, 55);
   
   public static final int CHUNK_SIZE = 64;
-  public static final int RENDER_RADIUS = 2;
+  public static final int RENDER_RADIUS = 4;
+  
+  private static Camera3D cam;
+  private static double camFOVChange = -1;
 
-  private static final int MAP_WIDTH    = 128;
-  private static final int MAP_HEIGHT   = 128;
-  private static final double MAP_RATIO = 1.0*MAP_WIDTH/MAP_HEIGHT;
-
-  private static volatile BufferedImage img = new BufferedImage(MAP_WIDTH, MAP_HEIGHT, 2);
-
-  private static volatile double lX = 0, lZ = 0;
-  private static volatile double  x = 0,  z = 0;
-
-  private static volatile float[] heightMap;
+  private static long pTTime = System.currentTimeMillis();
+  private static long pFTime = System.currentTimeMillis();
+  
+  private static double fps = 0;
+  private static int fCount = 0;
 
   static {
+    WINDOW = new Window("3D Test", (x, y) -> {});
+    
     WINDOW.setFullscreen(false);
 
-    FileIO.createDir("../results/");
-
-    MapGenerator.initialise();
+    SPLASH = FileIO.readImage("splash.png");
+    WINDOW.FRAME.setBackground(new Color(173, 173, 173));
 
     World.generateNewWorld();
+
+    Constants.setDynamicRasterLighting(false);
+
+    cam = new Camera3D(
+      new Vector3(),
+      560,
+      315,
+      80,
+      Renderer.rasterizer()
+    );
   }
 
-  public static void main(String[] args) {
-    Core.heightMap = MapGenerator.generateHeights(lX, lZ, MAP_WIDTH, MAP_HEIGHT, MAP_OCTAVES, true);
-    Core.img = ImageProc.mapToImage(Core.heightMap, MAP_WIDTH, MAP_HEIGHT);
-
-    Core.printScreenToFiles();
-
-    WINDOW.PANEL.repaint();
-
-    play();
+  /**
+   * Main method. Called on execution. Performs basic startup
+   *
+   * @param args Ignored for now
+   * @throws InterruptedException if thread sleeping fails for whatever reason. Catastrophic error should kill process.
+   */
+  public static void main(String[] args) throws InterruptedException {
+    playGame();
+  }
+  
+  /**
+  * @return the currently active camera
+  */
+  public static Camera3D getActiveCam() {
+    return cam;
   }
 
-  public static void printScreenToFiles() {
-    FileIO.writeImage("../results/terrain_map.png", img);
-    FileIO.saveToFile("../results/map.obj",         new Map3D(heightMap, MAP_WIDTH, MAP_HEIGHT).toString());
-    FileIO.saveToFile("../results/mapBlock.obj",    new MapCubes(heightMap, MAP_WIDTH, MAP_HEIGHT).toString());
+  public static double getFps() {
+    return fps;
+  }
+
+  public static State getState() {
+    return state;
+  }
+
+  public static void setFieldOfView(double f) {
+    camFOVChange = f;
+  }
+
+  public static void printChunkToFiles() {
+    Chunk c = World.getChunks()[RENDER_RADIUS][RENDER_RADIUS];
+    FileIO.writeImage("../results/terrain_map.png", c.getImg());
+    FileIO.saveToFile("../results/chunk.obj",       c.getBody().getModel().toString());
     FileIO.saveToFile("../results/mat.mtl",         MAT_FILE);
   }
 
-  public static void play() {
-    while(true) {
-      WINDOW.PANEL.repaint();
-    }
+  public static void quitToMenu() {
+    cam.setPosition(new Vector3());
+    cam.resetRotation();
+    Core.state = State.MAINMENU;
+    UIController.setCurrentPane("Main Menu");
   }
 
-  public static void updateMap(double xOff, double zOff) {
-    lX += xOff;
-    x  += xOff;
-    while(lX >= Core.CHUNK_SIZE) {
-      lX -= Core.CHUNK_SIZE;
-      World.shiftXIncr();
-    }
-    while(lX < 0) {
-      lX += Core.CHUNK_SIZE;
-      World.shiftXDecr();
-    }
-    lZ += zOff;
-    z  += zOff;
-    while(lZ >= Core.CHUNK_SIZE) {
-      lZ -= Core.CHUNK_SIZE;
-      World.shiftZIncr();
-    }
-    while(lZ < 0) {
-      lZ += Core.CHUNK_SIZE;
-      World.shiftZDecr();
-    }
+  public static void loadScene() {
+    cam.setPosition(new Vector3());
+    cam.resetRotation();
+    Core.state = State.RUN;
+    UIController.setCurrentPane("HUD");
+  }
+  
+  /**
+  * Sets a flag to close the program at the nearest convenience
+  */
+  public static void quitToDesk() {
+    if (quit) System.exit(1);
+    
+    quit = true;
+  }
 
-    Core.heightMap = MapGenerator.generateHeights(x, z, MAP_WIDTH, MAP_HEIGHT, MAP_OCTAVES, false);
-    Core.img = ImageProc.mapToImage(heightMap, MAP_WIDTH, MAP_HEIGHT);
+  public static void playGame() throws InterruptedException {
+    while (true) {
+      long tickTime = System.currentTimeMillis();
+      long deltaTimeMillis = tickTime - pTTime;
+      pTTime  = tickTime;
+
+      if (state == State.SPLASH && tickTime-START_TIME >= SPLASH_TIME) {
+        Controls.initialiseControls(WINDOW.FRAME);
+        loadScene();
+      }
+      else if (state == State.RUN) {
+        Controls.doInput(deltaTimeMillis, cam);
+        cam.draw(World.getChunkBodies());
+      }
+
+      if (camFOVChange > 0) {
+        cam.setFieldOfView(camFOVChange);
+        camFOVChange = -1;
+      }
+
+      if (quit) {
+        System.exit(0);
+      }
+      WINDOW.PANEL.repaint();
+      
+      tickTime = System.currentTimeMillis() - tickTime;
+      Thread.sleep(Math.max(MILLISECONDS_PER_TICK - tickTime, 0));
+    }
   }
 
   /**
@@ -98,10 +168,29 @@ public abstract class Core {
   * @param gra the supplied {@code Graphics} object
   */
   public static void paintComponent(Graphics gra) {
-    gra.fillRect(0, 0, WINDOW.screenWidth(), WINDOW.screenHeight());
-    int size = Math.min((int)(WINDOW.screenWidth()/MAP_RATIO), WINDOW.screenHeight());
-    gra.drawImage(img.getScaledInstance((int)(size*MAP_RATIO), size, BufferedImage.SCALE_DEFAULT), 0, 0, null);
-    World.draw(gra, size, MAP_RATIO, lX, lZ);
+
+    switch (state) {
+      case SPLASH:
+        gra.drawImage(SPLASH, (WINDOW.screenWidth()-SPLASH.getWidth())/2, (WINDOW.screenHeight()-SPLASH.getHeight())/2, null);
+      break;
+      default:
+        int size = Math.min(WINDOW.screenWidth(), (int)(WINDOW.screenHeight()/cam.getImageAspectRatio()));
+        gra.drawImage(cam.getImage().getScaledInstance(size, (int)(size*cam.getImageAspectRatio()), BufferedImage.SCALE_DEFAULT), 0, 0, null);
+    
+        UIController.draw((Graphics2D)gra, WINDOW.screenWidth(), WINDOW.screenHeight());
+      break;
+    }
+
+    long cFTime = System.currentTimeMillis();
+
+    if (cFTime-pFTime >= 1000) {
+      fps = fCount*1000.0/(cFTime-pFTime);
+      System.out.println(fps);
+      pFTime = cFTime;
+      fCount=0;
+    }
+    
+    fCount++;
   }
 
   private static final String MAT_FILE = "newmtl mat\n"+

@@ -2,12 +2,18 @@ package code.generation;
 
 import code.core.Core;
 import code.core.World;
+import mki.math.vector.Vector3;
+import mki.world.RigidBody;
 
 public class ChunkGenerator extends Thread {
 
   private volatile boolean active = true;
 
   private int gX, gZ;
+
+  public ChunkGenerator() {
+    super("Chunk-Generator");
+  }
   
   /**
    * Active method for this {@code ChunkGenerator}.
@@ -36,7 +42,11 @@ public class ChunkGenerator extends Thread {
 
       // only bother to generate if we need to
       if (chunks[y][x] == null) {
-        chunks[y][x] = new Chunk(gX-chunks[y].length/2+x, gZ-chunks.length/2+y);
+        Chunk c = new Chunk(World.getTerrainGenerator(), gX-chunks[y].length/2+x, gZ-chunks.length/2+y);
+        chunks[y][x] = c;
+        RigidBody b = c.getBody();
+        b.setPosition(new Vector3((x-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE, 0, (y-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE));
+        World.getChunkBodies()[x+y*chunks.length] = b;
       }
 
       i++;

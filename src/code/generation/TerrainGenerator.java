@@ -7,26 +7,24 @@ import code.core.Core;
 import mki.io.FileIO;
 // import code.math.MathHelp;
 
-public class MapGenerator {
+public class TerrainGenerator {
 
   private static final double BEACH_FLATTEN_EXP = 1.5;
 
   private static final double BEACH_CUTOFF = Math.pow(1/BEACH_FLATTEN_EXP, 1/(BEACH_FLATTEN_EXP-1));
   private static final float  LAND_OFFSET = (float)(BEACH_CUTOFF-Math.pow(BEACH_CUTOFF, BEACH_FLATTEN_EXP));
   
-  // private static Random rng;
-  private static SimplexNoise noise;
+  private final SimplexNoise noise;
   
-  public static void initialise(long seed) {
-    // MapGenerator.rng = new Random(seed);
-    MapGenerator.noise = new SimplexNoise(seed);
+  public TerrainGenerator(long seed) {
+    this.noise = new SimplexNoise(seed);
   }
 
-  public static void initialise() {
-    initialise(System.currentTimeMillis());
+  public TerrainGenerator() {
+    this(System.currentTimeMillis());
   }
   
-  public static float[] generateHeights(double xOff, double yOff, int width, int height, int octaves, boolean bigPrint) {
+  public float[] generateHeights(double xOff, double yOff, int width, int height, int octaves, boolean bigPrint) {
     float[] res = new float[width*height];
 
     xOff = xOff*Core.MAP_SCALE-width /2.0;

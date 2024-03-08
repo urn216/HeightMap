@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 
 import code.core.Core;
 import code.models.Map3D;
+import mki.world.RigidBody;
 
 public class Chunk {
 
@@ -11,12 +12,12 @@ public class Chunk {
 
   private final BufferedImage img;
 
-  private final Map3D model;
+  private final RigidBody body;
 
-  public Chunk(int x, int z) {
-    this.heightMap = MapGenerator.generateHeights(x/Core.MAP_SCALE*Core.CHUNK_SIZE, z/Core.MAP_SCALE*Core.CHUNK_SIZE, Core.CHUNK_SIZE+1, Core.CHUNK_SIZE+1, Core.MAP_OCTAVES, false);
+  public Chunk(TerrainGenerator tG, int x, int z) {
+    this.heightMap = tG.generateHeights(x/Core.MAP_SCALE*Core.CHUNK_SIZE, z/Core.MAP_SCALE*Core.CHUNK_SIZE, Core.CHUNK_SIZE+1, Core.CHUNK_SIZE+1, Core.MAP_OCTAVES, false);
     this.img = ImageProc.mapToImage(this.heightMap, Core.CHUNK_SIZE+1, Core.CHUNK_SIZE+1);
-    this.model = new Map3D(this.heightMap, Core.CHUNK_SIZE+1, Core.CHUNK_SIZE+1);
+    this.body = new Map3D(this.heightMap, Core.CHUNK_SIZE+1, Core.CHUNK_SIZE+1, this.img.getRGB(0, 0, img.getWidth(), img.getHeight(), null, 0, img.getWidth()));
   }
 
   public float[] getHeightMap() {
@@ -27,7 +28,7 @@ public class Chunk {
     return img;
   }
 
-  public Map3D getModel() {
-    return model;
+  public RigidBody getBody() {
+    return body;
   }
 }

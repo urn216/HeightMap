@@ -1,40 +1,37 @@
 package code.core;
 
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentAdapter;
-
-import java.awt.Graphics;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.image.BufferedImage;
-import java.awt.Insets;
-
-import java.util.function.BiConsumer;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import mki.io.FileIO;
-
 import mki.math.vector.Vector2;
 
-final class Window {
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.awt.Insets;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.ComponentAdapter;
+
+public final class Window_2D {
   
   public static final Vector2 DEFAULT_SCREEN_SIZE = new Vector2(1920, 1080);
 
-  public final JFrame FRAME;
-  public final JPanel PANEL = new JPanel() {public void paintComponent(Graphics gra) {Core.paintComponent(gra);}};
+  public final JFrame FRAME = new JFrame("Heightmap");
+  public final JPanel PANEL = new JPanel() {public void paintComponent(Graphics gra) {Core_2D.paintComponent(gra);}};
   
   private int screenSizeX, screenSizeY;
   private int smallScreenX, smallScreenY;
   
   int toolBarLeft, toolBarRight, toolBarTop, toolBarBot;
 
-  Window(String title, BiConsumer<Integer, Integer> onResize) {
-    FRAME = new JFrame(title);
-
+  Window_2D() {
     FRAME.getContentPane().add(PANEL);
     FRAME.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     FRAME.setResizable(true);
@@ -51,7 +48,7 @@ final class Window {
     FRAME.addWindowListener( new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-        Core.quitToDesk();
+        System.exit(0);
       }
     });
     FRAME.addComponentListener( new ComponentAdapter() {
@@ -60,11 +57,44 @@ final class Window {
         screenSizeX = FRAME.getWidth() - toolBarLeft - toolBarRight;
         screenSizeY = FRAME.getHeight() - toolBarTop - toolBarBot;
 
-        onResize.accept(screenSizeX, screenSizeY);
-
         if (!isFullScreen()) {
           smallScreenX = screenSizeX;
           smallScreenY = screenSizeY;
+        }
+      }
+    });
+    FRAME.addKeyListener(new KeyAdapter() {
+      @Override
+      public void keyPressed(KeyEvent e) {
+        switch(e.getKeyCode()) {
+          case KeyEvent.VK_W:
+          Core_2D.updateMap(0, -10/Core_2D.MAP_SCALE);
+          break;
+          case KeyEvent.VK_A:
+          Core_2D.updateMap(-10/Core_2D.MAP_SCALE, 0);
+          break;
+          case KeyEvent.VK_S:
+          Core_2D.updateMap(0,  10/Core_2D.MAP_SCALE);
+          break;
+          case KeyEvent.VK_D:
+          Core_2D.updateMap( 10/Core_2D.MAP_SCALE, 0);
+          break;
+          case KeyEvent.VK_EQUALS:
+          Core.MAP_SCALE*=2;
+          World.regenChunks();
+          Core_2D.updateMap(0, 0);
+          System.out.println(Core_2D.MAP_SCALE);
+          break;
+          case KeyEvent.VK_MINUS:
+          Core.MAP_SCALE*=0.5;
+          World.regenChunks();
+          Core_2D.updateMap(0, 0);
+          System.out.println(Core_2D.MAP_SCALE);
+          break;
+          case KeyEvent.VK_ENTER:
+          Core_2D.printScreenToFiles();
+          break;
+          default:
         }
       }
     });

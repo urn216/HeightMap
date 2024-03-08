@@ -4,13 +4,14 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/UI-1.0.11/UI-1.0.11.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/Heightmap/lib/UI-1.0.11/UI-1.0.11-javadoc.jar!/" />
+			<attribute name="javadoc_location" value="jar:platform:/resource/Heightmap/lib/UI-1.0.11/UI-1.0.11-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/Utilities-1.0.1/Utilities-1.0.1.jar">
+	<classpathentry kind="lib" path="lib/Utilities-1.0.2/Utilities-1.0.2.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/Heightmap/lib/Utilities-1.0.1/Utilities-1.0.1-javadoc.jar!/" />
+			<attribute name="javadoc_location" value="jar:platform:/resource/Heightmap/lib/Utilities-1.0.2/Utilities-1.0.2-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/3DLib-0.0.2/3DLib-0.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
