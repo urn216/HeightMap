@@ -13,13 +13,6 @@ public abstract class Core_2D {
 
   public static final Window_2D WINDOW = new Window_2D();
 
-  public static double MAP_SCALE = 1;
-  public static final int MAP_OCTAVES  = 10;
-  // public static double MAP_SCALE = 1/Math.pow(2, 55);
-  
-  public static final int CHUNK_SIZE = 64;
-  public static final int RENDER_RADIUS = 2;
-
   private static final int MAP_WIDTH    = 128;
   private static final int MAP_HEIGHT   = 128;
   private static final double MAP_RATIO = 1.0*MAP_WIDTH/MAP_HEIGHT;
@@ -31,16 +24,15 @@ public abstract class Core_2D {
 
   private static volatile float[] heightMap;
 
-  static {
+  public static void main(String[] args) {
+
     WINDOW.setFullscreen(false);
 
     FileIO.createDir("../results/");
 
     World.generateNewWorld();
-  }
 
-  public static void main(String[] args) {
-    Core_2D.heightMap = World.getTerrainGenerator().generateHeights(lX, lZ, MAP_WIDTH, MAP_HEIGHT, MAP_OCTAVES, true);
+    Core_2D.heightMap = World.getTerrainGenerator().generateHeights(lX, lZ, MAP_WIDTH, MAP_HEIGHT, Core.MAP_OCTAVES, true);
     Core_2D.img = ImageProc.mapToImage(Core_2D.heightMap, MAP_WIDTH, MAP_HEIGHT);
 
     Core_2D.printScreenToFiles();
@@ -52,7 +44,7 @@ public abstract class Core_2D {
 
   public static void printScreenToFiles() {
     FileIO.writeImage("../results/terrain_map.png", img);
-    FileIO.saveToFile("../results/map.obj",         new Map3D(heightMap, MAP_WIDTH, MAP_HEIGHT, new int[]{~0}).getModel().toString());
+    FileIO.saveToFile("../results/map.obj",         new Map3D(heightMap, MAP_WIDTH, MAP_HEIGHT, 0, new int[]{~0}).getModel().toString());
     FileIO.saveToFile("../results/mapBlock.obj",    new MapCubes(heightMap, MAP_WIDTH, MAP_HEIGHT, new int[]{~0}).toString());
     FileIO.saveToFile("../results/mat.mtl",         MAT_FILE);
   }
@@ -66,26 +58,26 @@ public abstract class Core_2D {
   public static void updateMap(double xOff, double zOff) {
     lX += xOff;
     x  += xOff;
-    while(lX >= Core_2D.CHUNK_SIZE) {
-      lX -= Core_2D.CHUNK_SIZE;
+    while(lX >= Core.CHUNK_SIZE) {
+      lX -= Core.CHUNK_SIZE;
       World.shiftXIncr();
     }
     while(lX < 0) {
-      lX += Core_2D.CHUNK_SIZE;
+      lX += Core.CHUNK_SIZE;
       World.shiftXDecr();
     }
     lZ += zOff;
     z  += zOff;
-    while(lZ >= Core_2D.CHUNK_SIZE) {
-      lZ -= Core_2D.CHUNK_SIZE;
+    while(lZ >= Core.CHUNK_SIZE) {
+      lZ -= Core.CHUNK_SIZE;
       World.shiftZIncr();
     }
     while(lZ < 0) {
-      lZ += Core_2D.CHUNK_SIZE;
+      lZ += Core.CHUNK_SIZE;
       World.shiftZDecr();
     }
 
-    Core_2D.heightMap = World.getTerrainGenerator().generateHeights(x, z, MAP_WIDTH, MAP_HEIGHT, MAP_OCTAVES, false);
+    Core_2D.heightMap = World.getTerrainGenerator().generateHeights(x, z, MAP_WIDTH, MAP_HEIGHT, Core.MAP_OCTAVES, false);
     Core_2D.img = ImageProc.mapToImage(heightMap, MAP_WIDTH, MAP_HEIGHT);
   }
 

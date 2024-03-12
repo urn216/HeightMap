@@ -22,7 +22,7 @@ enum State {
 
 public abstract class Core {
 
-  public static final Window WINDOW;
+  public static final Window WINDOW = new Window("3D Test", (x, y) -> {});
   
   private static final long TICKS_PER_SECOND = 60;
   private static final long MILLISECONDS_PER_TICK = 900/TICKS_PER_SECOND;
@@ -30,7 +30,7 @@ public abstract class Core {
   private static final long START_TIME = System.currentTimeMillis();
   private static final int SPLASH_TIME = 1000;
   
-  private static final BufferedImage SPLASH;
+  private static final BufferedImage SPLASH = FileIO.readImage("splash.png");
 
   private static State state = State.SPLASH;
   
@@ -40,8 +40,9 @@ public abstract class Core {
   public static final int MAP_OCTAVES  = 10;
   // public static double MAP_SCALE = 1/Math.pow(2, 55);
   
-  public static final int CHUNK_SIZE = 64;
-  public static final int RENDER_RADIUS = 4;
+  public static final int CHUNK_POW = 6;
+  public static final int CHUNK_SIZE = (int)Math.pow(2, CHUNK_POW);
+  public static final int RENDER_RADIUS = 32;
   
   private static Camera3D cam;
   private static double camFOVChange = -1;
@@ -52,12 +53,16 @@ public abstract class Core {
   private static double fps = 0;
   private static int fCount = 0;
 
-  static {
-    WINDOW = new Window("3D Test", (x, y) -> {});
+  /**
+   * Main method. Called on execution. Performs basic startup
+   *
+   * @param args Ignored for now
+   * @throws InterruptedException if thread sleeping fails for whatever reason. Catastrophic error should kill process.
+   */
+  public static void main(String[] args) throws InterruptedException {
     
     WINDOW.setFullscreen(false);
 
-    SPLASH = FileIO.readImage("splash.png");
     WINDOW.FRAME.setBackground(new Color(173, 173, 173));
 
     World.generateNewWorld();
@@ -66,20 +71,12 @@ public abstract class Core {
 
     cam = new Camera3D(
       new Vector3(),
-      560,
-      315,
+      512,
+      288,
       80,
       Renderer.rasterizer()
     );
-  }
 
-  /**
-   * Main method. Called on execution. Performs basic startup
-   *
-   * @param args Ignored for now
-   * @throws InterruptedException if thread sleeping fails for whatever reason. Catastrophic error should kill process.
-   */
-  public static void main(String[] args) throws InterruptedException {
     playGame();
   }
   

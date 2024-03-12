@@ -39,15 +39,17 @@ public class ChunkGenerator extends Thread {
       // x and y from centre, rather than top-left
       int x = Core.RENDER_RADIUS - r + i;
       int y = Core.RENDER_RADIUS - r + j;
+      int detail = (int)Math.sqrt(((x-Core.RENDER_RADIUS)*(x-Core.RENDER_RADIUS) + (y-Core.RENDER_RADIUS)*(y-Core.RENDER_RADIUS))/3);
 
       // only bother to generate if we need to
       if (chunks[y][x] == null) {
-        Chunk c = new Chunk(World.getTerrainGenerator(), gX-chunks[y].length/2+x, gZ-chunks.length/2+y);
+        Chunk c = new Chunk(World.getTerrainGenerator(), gX-chunks[y].length/2+x, gZ-chunks.length/2+y, detail);
         chunks[y][x] = c;
         RigidBody b = c.getBody();
         b.setPosition(new Vector3((x-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE, 0, (y-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE));
         World.getChunkBodies()[x+y*chunks.length] = b;
       }
+      else chunks[y][x].setVertexDensity(detail);
 
       i++;
       if (i<s) continue; // pseudo for-loop

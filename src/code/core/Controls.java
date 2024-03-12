@@ -211,7 +211,7 @@ abstract class Controls {
       Controls.mouseOff = new Vector2I();
     }
 
-    while(cam.getPosition().x >= Core_2D.CHUNK_SIZE) {
+    while(cam.getPosition().x >= Core.CHUNK_SIZE) {
       cam.offsetPositionGlobal(-Core.CHUNK_SIZE, 0, 0);
       World.shiftXIncr();
     }
@@ -219,7 +219,7 @@ abstract class Controls {
       cam.offsetPositionGlobal( Core.CHUNK_SIZE, 0, 0);
       World.shiftXDecr();
     }
-    while(cam.getPosition().z >= Core_2D.CHUNK_SIZE) {
+    while(cam.getPosition().z >= Core.CHUNK_SIZE) {
       cam.offsetPositionGlobal(0, 0, -Core.CHUNK_SIZE);
       World.shiftZIncr();
     }

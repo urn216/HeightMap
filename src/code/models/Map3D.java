@@ -11,19 +11,27 @@ import mki.world.RigidBody;
 
 public class Map3D extends RigidBody {
 
-  public Map3D(float[] map, int w, int h, int[] img) {
-    super(new Vector3(w/2.0, 0, h/2.0), generateMesh(map, w, h));
+  private int downScaleFactor;
+
+  private final int w, h;
+
+  public Map3D(float[] map, int w, int h, int downScaleFactor, int[] img) {
+    super(new Vector3(w/2.0, 0, h/2.0), generateMesh(map, w, h, downScaleFactor));
     // super(new Vector3(), Model.generateMesh("chunk.obj"));
 
+    this.w = w;
+    this.h = h;
+
+    this.downScaleFactor = Math.min(downScaleFactor, Core.CHUNK_POW);
+
     this.model.setMat(new Material(new Vector3I(150), 0, new Vector3(), img, new int[]{-8355585}));
-    // this.model.setMat(new Material(new Vector3I(150), 0, new Vector3(), "env/terrain_map.png"));
     this.model.calculateRadius();
   }
 
-  protected static Model generateMesh(float[] map, int w, int h) {
+  protected static Model generateMesh(float[] map, int w, int h, int downScaleFactor) {
     Vector3[] verts = generateVerts(map, w, h);
     Vector2[] vertUVs = generateUVs(w, h);
-    Tri3D[] faces = generateFaces(verts, vertUVs, w, h);
+    Tri3D[] faces = generateFaces(verts, vertUVs, w, h, (int)Math.pow(2, downScaleFactor));
 
     return new Model(verts, faces, vertUVs);
   }
@@ -60,19 +68,24 @@ public class Map3D extends RigidBody {
     return res;
   }
 
-  private static Tri3D[] generateFaces(Vector3[] verts, Vector2[] vertUVs, int w, int h) {
-    Tri3D[] res = new Tri3D[2*(w-1)*(h-1) + 2];
+  private static Tri3D[] generateFaces(Vector3[] verts, Vector2[] vertUVs, int w, int h, int step) {
+    if (step > Core.CHUNK_SIZE) step = Core.CHUNK_SIZE;
 
-    for (int z = 0; z < h-1; z++) {
-      for (int x = 0; x < w-1; x++) {
-        int a = (x) + (z) * w, b = (x+1) + (z) * w, c = (x) + (z+1) * w, d = (x+1) + (z+1) * w;
-        res[2*(x + z * (w-1))]   = new Tri3D(
+    int resW = (step<=1?w:(w/step+w%2))-1;
+    int resH = (step<=1?h:(h/step+h%2))-1;
+    Tri3D[] res = new Tri3D[2*resW*resH + 2];
+
+    for (int z = 0; z < resH; z++) {
+      for (int x = 0; x < resW; x++) {
+        int a = (x  )*step + (z  )*step * w, b = (x+1)*step + (z  )*step * w
+        ,   c = (x  )*step + (z+1)*step * w, d = (x+1)*step + (z+1)*step * w;
+        res[2*(x + z * resW)]   = new Tri3D(
           new Vector3[]{verts  [a], verts  [d], verts  [b]}, 
           new Vector2[]{vertUVs[a], vertUVs[d], vertUVs[b]},
           new int[]{a+1, d+1, b+1},
           new int[]{a+1, d+1, b+1}
         );
-        res[2*(x + z * (w-1))+1] = new Tri3D(
+        res[2*(x + z * resW)+1] = new Tri3D(
           new Vector3[]{verts  [a], verts  [c], verts  [d]}, 
           new Vector2[]{vertUVs[a], vertUVs[c], vertUVs[d]}, 
           new int[]{a+1, c+1, d+1},
@@ -97,5 +110,13 @@ public class Map3D extends RigidBody {
     );
 
     return res;
+  }
+
+  public void setVertexDensity(int downScaleFactor) {
+    downScaleFactor = Math.min(downScaleFactor, Core.CHUNK_POW);
+    if (this.downScaleFactor == downScaleFactor) return;
+    this.downScaleFactor = downScaleFactor;
+    
+    model.setFaces(generateFaces(model.getVerts(), model.getVertUVs(), w, h, (int)Math.pow(2, downScaleFactor)));
   }
 }

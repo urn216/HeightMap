@@ -68,28 +68,28 @@ public final class Window_2D {
       public void keyPressed(KeyEvent e) {
         switch(e.getKeyCode()) {
           case KeyEvent.VK_W:
-          Core_2D.updateMap(0, -10/Core_2D.MAP_SCALE);
+          Core_2D.updateMap(0, -10/Core.MAP_SCALE);
           break;
           case KeyEvent.VK_A:
-          Core_2D.updateMap(-10/Core_2D.MAP_SCALE, 0);
+          Core_2D.updateMap(-10/Core.MAP_SCALE, 0);
           break;
           case KeyEvent.VK_S:
-          Core_2D.updateMap(0,  10/Core_2D.MAP_SCALE);
+          Core_2D.updateMap(0,  10/Core.MAP_SCALE);
           break;
           case KeyEvent.VK_D:
-          Core_2D.updateMap( 10/Core_2D.MAP_SCALE, 0);
+          Core_2D.updateMap( 10/Core.MAP_SCALE, 0);
           break;
           case KeyEvent.VK_EQUALS:
           Core.MAP_SCALE*=2;
           World.regenChunks();
           Core_2D.updateMap(0, 0);
-          System.out.println(Core_2D.MAP_SCALE);
+          System.out.println(Core.MAP_SCALE);
           break;
           case KeyEvent.VK_MINUS:
           Core.MAP_SCALE*=0.5;
           World.regenChunks();
           Core_2D.updateMap(0, 0);
-          System.out.println(Core_2D.MAP_SCALE);
+          System.out.println(Core.MAP_SCALE);
           break;
           case KeyEvent.VK_ENTER:
           Core_2D.printScreenToFiles();
