@@ -9,7 +9,7 @@ public class ChunkGenerator extends Thread {
 
   private volatile boolean active = true;
 
-  private int gX, gZ;
+  private volatile boolean resetGeneration = false;
 
   public ChunkGenerator() {
     super("Chunk-Generator");
@@ -31,10 +31,8 @@ public class ChunkGenerator extends Thread {
     while (active) {
       Chunk[][] chunks = World.getChunks();
 
-      // reset from middle if we've moved
-      int gX = World.getCentreChunkX();
-      int gZ = World.getCentreChunkZ();
-      if (gX != this.gX || gZ != this.gZ) {r=0;s=1;i=0;j=0;this.gX=gX;this.gZ=gZ;}
+      // reset from middle if we need to
+      if (resetGeneration) {r=0;s=1;i=0;j=0;this.resetGeneration=false;}
 
       // x and y from centre, rather than top-left
       int x = Core.RENDER_RADIUS - r + i;
@@ -43,6 +41,9 @@ public class ChunkGenerator extends Thread {
 
       // only bother to generate if we need to
       if (chunks[y][x] == null) {
+        int gX = World.getCentreChunkX();
+        int gZ = World.getCentreChunkZ();
+
         Chunk c = new Chunk(World.getTerrainGenerator(), gX-chunks[y].length/2+x, gZ-chunks.length/2+y, detail);
         chunks[y][x] = c;
         RigidBody b = c.getBody();
@@ -65,5 +66,9 @@ public class ChunkGenerator extends Thread {
 
   public void end() {
     this.active = false;
+  }
+
+  public void resetGeneration() {
+    this.resetGeneration = true;
   }
 }

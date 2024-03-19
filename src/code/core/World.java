@@ -66,6 +66,8 @@ public abstract class World {
     bodies = new RigidBody[chunks.length*chunks.length];
 
     Arrays.fill(bodies, BLANK_BODY);
+
+    chunkGenerator.resetGeneration();
     
     // for (int y = 0; y < chunks.length; y++) {
     //   for (int x = 0; x < chunks[y].length; x++) {
@@ -87,6 +89,7 @@ public abstract class World {
       chunks[y][chunks[y].length-1] = null;
       bodies[chunks[y].length-1+y*chunks.length] = BLANK_BODY;
     }
+    chunkGenerator.resetGeneration();
   }
 
   public static void shiftXDecr() { 
@@ -102,6 +105,7 @@ public abstract class World {
       chunks[y][0] = null;
       bodies[y*chunks.length] = BLANK_BODY;
     }
+    chunkGenerator.resetGeneration();
   }
 
   public static void shiftZIncr() {
@@ -119,6 +123,7 @@ public abstract class World {
     // for (int x = 0; x < chunks[0].length; x++) {
     //   chunks[chunks.length-1][x] = new Chunk(gX+x-chunks[0].length/2, gZ+chunks.length-1-chunks.length/2);
     // }
+    chunkGenerator.resetGeneration();
   }
 
   public static void shiftZDecr() {
@@ -136,6 +141,7 @@ public abstract class World {
     // for (int x = 0; x < chunks[0].length; x++) {
     //   chunks[0][x] = new Chunk(gX+x-chunks[0].length/2, gZ-chunks.length/2);
     // }
+    chunkGenerator.resetGeneration();
   }
 
   public static void draw(Graphics g, int size, double mapRatio, double lX, double lZ) {

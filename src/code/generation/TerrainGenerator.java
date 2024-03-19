@@ -50,6 +50,8 @@ public class TerrainGenerator {
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
+        //Continent test
+        // res[x+y*width] += 3/(1+Math.pow(Math.E, 50*(0.5-noise.evaluate((x+xOff)/(10000*Core.MAP_SCALE), (y+yOff)/(10000*Core.MAP_SCALE)))))-1.5;
         float h = res[x+y*width];
         res[x+y*width] = h > 0?
           h >  BEACH_CUTOFF ? h-LAND_OFFSET :  (float)Math.pow( h, BEACH_FLATTEN_EXP):
