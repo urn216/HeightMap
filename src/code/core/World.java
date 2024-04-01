@@ -1,24 +1,16 @@
 package code.core;
 
 import java.awt.Graphics;
-import java.util.Arrays;
 
 import code.generation.Chunk;
 import code.generation.ChunkGenerator;
 import code.generation.TerrainGenerator;
-import mki.math.tri.Tri3D;
-import mki.math.vector.Vector2;
 import mki.math.vector.Vector3;
-import mki.world.Model;
 import mki.world.RigidBody;
 
 public abstract class World {
 
-  private static final RigidBody BLANK_BODY = new RigidBody(new Vector3(), new Model(new Vector3[0], new Tri3D[0], new Vector2[0])) {};
-
   private static volatile Chunk[][] chunks;
-  
-  private static volatile RigidBody[] bodies;
   
   private static TerrainGenerator terrainGenerator = new TerrainGenerator();
   
@@ -53,19 +45,13 @@ public abstract class World {
     return chunks;
   }
 
-  public static RigidBody[] getChunkBodies() {
-    return bodies;
-  }
-
   public static TerrainGenerator getTerrainGenerator() {
     return terrainGenerator;
   }
 
   public static void regenChunks() {
     chunks = new Chunk[Core.RENDER_RADIUS*2+1][Core.RENDER_RADIUS*2+1];
-    bodies = new RigidBody[chunks.length*chunks.length];
-
-    Arrays.fill(bodies, BLANK_BODY);
+    RigidBody.clearBodies();
 
     chunkGenerator.resetGeneration();
     
@@ -79,15 +65,20 @@ public abstract class World {
   public static void shiftXIncr() {
     gX++;
     for (int y = 0; y < chunks.length; y++) {
-      for (int x = 1; x < chunks[y].length; x++) {
+      int x = 0;
+
+      if (chunks[y][x] != null) RigidBody.removeBody(chunks[y][x].getBody());
+
+      for (++x; x < chunks[y].length; x++) {
+        if (chunks[y][x] != null) chunks[y][x].getBody().setPosition(new Vector3(
+          (x-Core.RENDER_RADIUS-0.5)*Core.CHUNK_SIZE, 
+          0, 
+          (y-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE
+        ));
         chunks[y][x-1] = chunks[y][x];
-        RigidBody b = bodies[x+y*chunks.length];
-        b.setPosition(new Vector3((x-Core.RENDER_RADIUS-0.5)*Core.CHUNK_SIZE, 0, (y-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE));
-        bodies[x-1+y*chunks.length] = b;
       }
-      // chunks[y][chunks[y].length-1] = new Chunk(gX+chunks[y].length/2, gZ+y-chunks.length/2);
-      chunks[y][chunks[y].length-1] = null;
-      bodies[chunks[y].length-1+y*chunks.length] = BLANK_BODY;
+
+      chunks[y][x-1] = null;
     }
     chunkGenerator.resetGeneration();
   }
@@ -95,52 +86,61 @@ public abstract class World {
   public static void shiftXDecr() { 
     gX--;
     for (int y = 0; y < chunks.length; y++) {
-      for (int x = chunks[y].length-2; x >= 0; x--) {
+      int x = chunks[y].length-1;
+
+      if (chunks[y][x] != null) RigidBody.removeBody(chunks[y][x].getBody());
+
+      for (--x; x >= 0; x--) {
+        if (chunks[y][x] != null) chunks[y][x].getBody().setPosition(new Vector3(
+          (x-Core.RENDER_RADIUS+1.5)*Core.CHUNK_SIZE, 
+          0, 
+          (y-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE
+        ));
         chunks[y][x+1] = chunks[y][x];
-        RigidBody b = bodies[x+y*chunks.length];
-        b.setPosition(new Vector3((x-Core.RENDER_RADIUS+1.5)*Core.CHUNK_SIZE, 0, (y-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE));
-        bodies[x+1+y*chunks.length] = b;
       }
-      // chunks[y][0] = new Chunk(gX-chunks[y].length/2, gZ+y-chunks.length/2);
-      chunks[y][0] = null;
-      bodies[y*chunks.length] = BLANK_BODY;
+      
+      chunks[y][x+1] = null;
     }
     chunkGenerator.resetGeneration();
   }
 
   public static void shiftZIncr() {
     gZ++;
-    for (int y = 1; y < chunks.length; y++) {
-      for (int x = 0; x < chunks[y].length; x++) {
-        RigidBody b = bodies[x+y*chunks.length];
-        b.setPosition(new Vector3((x-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE, 0, (y-Core.RENDER_RADIUS-0.5)*Core.CHUNK_SIZE));
-        bodies[x+(y-1)*chunks.length] = b;
+
+    int y = 0;
+    
+    for (int x = 0; x < chunks[y].length; x++) if (chunks[y][x] != null) {
+      RigidBody.removeBody(chunks[y][x].getBody());
+    }
+
+    for (++y; y < chunks.length; y++) {
+      for (int x = 0; x < chunks[y].length; x++) if (chunks[y][x] != null) {
+        chunks[y][x].getBody().setPosition(new Vector3((x-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE, 0, (y-Core.RENDER_RADIUS-0.5)*Core.CHUNK_SIZE));
       }
       chunks[y-1] = chunks[y];
     }
-    chunks[chunks.length-1] = new Chunk[chunks[0].length];
-    for (int x = 0; x < chunks[0].length; x++) bodies[x+(chunks.length-1)*chunks.length] = BLANK_BODY;
-    // for (int x = 0; x < chunks[0].length; x++) {
-    //   chunks[chunks.length-1][x] = new Chunk(gX+x-chunks[0].length/2, gZ+chunks.length-1-chunks.length/2);
-    // }
+    
+    chunks[y-1] = new Chunk[chunks[y-1].length];
     chunkGenerator.resetGeneration();
   }
 
   public static void shiftZDecr() {
     gZ--;
-    for (int y = chunks.length-2; y >= 0; y--) {
-      for (int x = 0; x < chunks[y].length; x++) {
-        RigidBody b = bodies[x+y*chunks.length];
-        b.setPosition(new Vector3((x-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE, 0, (y-Core.RENDER_RADIUS+1.5)*Core.CHUNK_SIZE));
-        bodies[x+(y+1)*chunks.length] = b;
+
+    int y = chunks.length-1;
+    
+    for (int x = 0; x < chunks[y].length; x++) if (chunks[y][x] != null) {
+      RigidBody.removeBody(chunks[y][x].getBody());
+    }
+
+    for (--y; y >= 0; y--) {
+      for (int x = 0; x < chunks[y].length; x++) if (chunks[y][x] != null) {
+        chunks[y][x].getBody().setPosition(new Vector3((x-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE, 0, (y-Core.RENDER_RADIUS+1.5)*Core.CHUNK_SIZE));
       }
       chunks[y+1] = chunks[y];
     }
-    chunks[0] = new Chunk[chunks[0].length];
-    for (int x = 0; x < chunks[0].length; x++) bodies[x] = BLANK_BODY;
-    // for (int x = 0; x < chunks[0].length; x++) {
-    //   chunks[0][x] = new Chunk(gX+x-chunks[0].length/2, gZ-chunks.length/2);
-    // }
+
+    chunks[y+1] = new Chunk[chunks[y+1].length];
     chunkGenerator.resetGeneration();
   }
 

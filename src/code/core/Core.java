@@ -141,7 +141,7 @@ public abstract class Core {
       }
       else if (state == State.RUN) {
         Controls.doInput(deltaTimeMillis, cam);
-        cam.draw(World.getChunkBodies());
+        cam.draw();
       }
 
       if (camFOVChange > 0) {

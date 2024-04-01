@@ -48,7 +48,6 @@ public class ChunkGenerator extends Thread {
         chunks[y][x] = c;
         RigidBody b = c.getBody();
         b.setPosition(new Vector3((x-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE, 0, (y-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE));
-        World.getChunkBodies()[x+y*chunks.length] = b;
       }
       else chunks[y][x].setVertexDensity(detail);
 
