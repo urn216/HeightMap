@@ -1,7 +1,5 @@
 package code.generation;
 
-import code.core.Core;
-
 // import java.util.Random;
 
 import mki.io.FileIO;
@@ -9,10 +7,10 @@ import mki.io.FileIO;
 
 public class TerrainGenerator {
 
-  private static final double BEACH_FLATTEN_EXP = 1.5;
+  // private static final double BEACH_FLATTEN_EXP = 1.5;
 
-  private static final double BEACH_CUTOFF = Math.pow(1/BEACH_FLATTEN_EXP, 1/(BEACH_FLATTEN_EXP-1));
-  private static final float  LAND_OFFSET = (float)(BEACH_CUTOFF-Math.pow(BEACH_CUTOFF, BEACH_FLATTEN_EXP));
+  // private static final double BEACH_CUTOFF = Math.pow(1/BEACH_FLATTEN_EXP, 1/(BEACH_FLATTEN_EXP-1));
+  // private static final float  LAND_OFFSET = (float)(BEACH_CUTOFF-Math.pow(BEACH_CUTOFF, BEACH_FLATTEN_EXP));
   
   private final SimplexNoise noise;
   
@@ -24,40 +22,42 @@ public class TerrainGenerator {
     this(System.currentTimeMillis());
   }
   
-  public float[] generateHeights(double xOff, double yOff, int width, int height, int octaves, boolean bigPrint) {
+  public float[] generateHeights(double xOff, double yOff, int width, int height, int octaves, double worldScale, boolean bigPrint) {
     float[] res = new float[width*height];
 
-    xOff = xOff*Core.MAP_SCALE-width /2.0;
-    yOff = yOff*Core.MAP_SCALE-height/2.0;
+    xOff = xOff*worldScale-width /2.0;
+    yOff = yOff*worldScale-height/2.0;
     
     for (int o = 0; o < octaves; o++) {
       double xOctOff = o*1000;
       double yOctOff = o*1000;
-      double scale = Math.pow(2, o);
-      double damper = 500*Core.MAP_SCALE;
+      double scaleH = Math.pow(2, o);
+      double scaleV = Math.pow(2, -o*0.8);
+      double damper = 500*worldScale;//(o<octaves/2?worldScale:100);
 
       for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
           res[x+y*width] += noise.evaluate(
-            xOctOff+((x+xOff)*scale/damper), 
-            yOctOff+((y+yOff)*scale/damper)
-          )/scale;
+            xOctOff+((x+xOff)*scaleH/damper), 
+            yOctOff+((y+yOff)*scaleH/damper)
+          )*scaleV
+          *(o>9?Math.min(1, Math.abs(res[x+y*width]/0.0078125)):1);
         }
       }
 
       if (bigPrint) FileIO.writeImage("../results/layer" + o + "_octave.png", ImageProc.mapToImage(res, width, height));
     }
 
-    for (int x = 0; x < width; x++) {
-      for (int y = 0; y < height; y++) {
-        //Continent test
-        // res[x+y*width] += 3/(1+Math.pow(Math.E, 50*(0.5-noise.evaluate((x+xOff)/(10000*Core.MAP_SCALE), (y+yOff)/(10000*Core.MAP_SCALE)))))-1.5;
-        float h = res[x+y*width];
-        res[x+y*width] = h > 0?
-          h >  BEACH_CUTOFF ? h-LAND_OFFSET :  (float)Math.pow( h, BEACH_FLATTEN_EXP):
-          h < -BEACH_CUTOFF ? h+LAND_OFFSET : -(float)Math.pow(-h, BEACH_FLATTEN_EXP);
-      }
-    }
+    // for (int x = 0; x < width; x++) {
+    //   for (int y = 0; y < height; y++) {
+    //     //Continent test
+    //     // res[x+y*width] += 3/(1+Math.pow(Math.E, 50*(0.5-noise.evaluate((x+xOff)/(10000*Core.MAP_SCALE), (y+yOff)/(10000*Core.MAP_SCALE)))))-1.5;
+    //     float h = res[x+y*width];
+    //     res[x+y*width] = h > 0?
+    //       h >  BEACH_CUTOFF ? h-LAND_OFFSET :  (float)Math.pow( h, BEACH_FLATTEN_EXP):
+    //       h < -BEACH_CUTOFF ? h+LAND_OFFSET : -(float)Math.pow(-h, BEACH_FLATTEN_EXP);
+    //   }
+    // }
 
     return res;
   }

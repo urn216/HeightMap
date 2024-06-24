@@ -13,8 +13,8 @@ public abstract class Core_2D {
 
   public static final Window_2D WINDOW = new Window_2D();
 
-  private static final int MAP_WIDTH    = 128;
-  private static final int MAP_HEIGHT   = 128;
+  private static final short MAP_WIDTH    = 128;
+  private static final short MAP_HEIGHT   = 128;
   private static final double MAP_RATIO = 1.0*MAP_WIDTH/MAP_HEIGHT;
 
   private static volatile BufferedImage img = new BufferedImage(MAP_WIDTH, MAP_HEIGHT, 2);
@@ -32,7 +32,7 @@ public abstract class Core_2D {
 
     World.generateNewWorld();
 
-    Core_2D.heightMap = World.getTerrainGenerator().generateHeights(lX, lZ, MAP_WIDTH, MAP_HEIGHT, Core.MAP_OCTAVES, true);
+    Core_2D.heightMap = World.getTerrainGenerator().generateHeights(lX, lZ, MAP_WIDTH, MAP_HEIGHT, Core.MAP_OCTAVES, Core.MAP_RANGE_SCALE, true);
     Core_2D.img = ImageProc.mapToImage(Core_2D.heightMap, MAP_WIDTH, MAP_HEIGHT);
 
     Core_2D.printScreenToFiles();
@@ -77,7 +77,7 @@ public abstract class Core_2D {
       World.shiftZDecr();
     }
 
-    Core_2D.heightMap = World.getTerrainGenerator().generateHeights(x, z, MAP_WIDTH, MAP_HEIGHT, Core.MAP_OCTAVES, false);
+    Core_2D.heightMap = World.getTerrainGenerator().generateHeights(x, z, MAP_WIDTH, MAP_HEIGHT, Core.MAP_OCTAVES, Core.MAP_RANGE_SCALE, false);
     Core_2D.img = ImageProc.mapToImage(heightMap, MAP_WIDTH, MAP_HEIGHT);
   }
 

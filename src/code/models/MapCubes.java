@@ -4,17 +4,17 @@ import code.core.Core;
 import mki.math.tri.Tri3D;
 import mki.math.vector.Vector2;
 import mki.math.vector.Vector3;
-import mki.math.vector.Vector3I;
 import mki.world.Material;
 import mki.world.Model;
 import mki.world.RigidBody;
+import mki.world.Texture;
 
 public class MapCubes extends RigidBody {
 
   public MapCubes(float[] map, int w, int h, int[] img) {
     super(new Vector3(w/2.0, 0, h/2.0), generateMesh(map, w, h));
     
-    this.model.setMat(new Material(new Vector3I(150), 0, new Vector3(), img, new int[]{-8355585}));
+    this.model.setMat(new Material(Core.SOME_DIM, 0, new Vector3(), new int[][]{img, {w, h}}, Texture.getTexture("DEFAULT_NORMAL")));
     this.model.calculateRadius();
   }
 
@@ -31,7 +31,7 @@ public class MapCubes extends RigidBody {
     for (int i = 0; i < w; i++) {
       for (int j = 0; j < h; j++) {
         double x = i-(w/2.0);
-        double y = (Math.max(Math.floor(heights[i+j*w]*100*Core.MAP_SCALE), Math.floor(-0.5*Core.MAP_SCALE)+0.875));
+        double y = (Math.max(Math.floor(heights[i+j*w]*Core.MAP_HEIGHT_SCALE), Math.floor(-0.5*Core.MAP_HEIGHT_SCALE)+0.875));
         double z = j-(h/2.0);
         res[i*2   + w*2*(j*2)  ] = new Vector3(x-0.5, y, z-0.5);
         res[i*2+1 + w*2*(j*2)  ] = new Vector3(x+0.5, y, z-0.5);

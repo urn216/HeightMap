@@ -4,27 +4,28 @@ import code.core.Core;
 import mki.math.tri.Tri3D;
 import mki.math.vector.Vector2;
 import mki.math.vector.Vector3;
-import mki.math.vector.Vector3I;
 import mki.world.Material;
 import mki.world.Model;
 import mki.world.RigidBody;
+import mki.world.Texture;
 
 public class Map3D extends RigidBody {
 
-  private int downScaleFactor;
+  private byte downScaleFactor;
 
-  private final int w, h;
+  private final short w, h;
 
-  public Map3D(float[] map, int w, int h, int downScaleFactor, int[] img) {
-    super(new Vector3(w/2.0, 0, h/2.0), generateMesh(map, w, h, downScaleFactor));
+  public Map3D(float[] map, short w, short h, int downScaleFactor, int[] img) {
+    super(new Vector3(w/2.0, 1000000, h/2.0), generateMesh(map, w, h, downScaleFactor));
     // super(new Vector3(), Model.generateMesh("chunk.obj"));
 
     this.w = w;
     this.h = h;
 
-    this.downScaleFactor = Math.min(downScaleFactor, Core.CHUNK_POW);
-
-    this.model.setMat(new Material(new Vector3I(150), 0, new Vector3(), img, new int[]{-8355585}));
+    this.downScaleFactor = (byte)Math.min(downScaleFactor, Core.CHUNK_POW);
+    //DEFAULT_NORMAL
+    //env/softer_normal.png
+    this.model.setMat(new Material(Core.SOME_DIM, 0, new Vector3(), new int[][]{img, {w, h}}, Texture.getTexture("DEFAULT_NORMAL")));
     this.model.calculateRadius();
   }
 
@@ -39,10 +40,10 @@ public class Map3D extends RigidBody {
   private static Vector3[] generateVerts(float[] heights, int w, int h) {
     Vector3[] res = new Vector3[heights.length+4];
 
-    double oceanHeight = -0.0078125*Core.MAP_SCALE;
+    double oceanHeight = -0.000078125*Core.MAP_HEIGHT_SCALE;
 
     for (int i = 0; i < res.length-4; i++) {
-      res[i] = new Vector3((i%w)-(w/2.0), heights[i]*100*Core.MAP_SCALE, (i/w)-(h/2.0));
+      res[i] = new Vector3((i%w)-(w/2.0), heights[i]*Core.MAP_HEIGHT_SCALE, (i/w)-(h/2.0));
     }
 
     res[res.length-4] = new Vector3(-w/2.0    , oceanHeight,  h/2.0 - 1);
@@ -115,7 +116,7 @@ public class Map3D extends RigidBody {
   public void setVertexDensity(int downScaleFactor) {
     downScaleFactor = Math.min(downScaleFactor, Core.CHUNK_POW);
     if (this.downScaleFactor == downScaleFactor) return;
-    this.downScaleFactor = downScaleFactor;
+    this.downScaleFactor = (byte)downScaleFactor;
     
     model.setFaces(generateFaces(model.getVerts(), model.getVertUVs(), w, h, (int)Math.pow(2, downScaleFactor)));
   }

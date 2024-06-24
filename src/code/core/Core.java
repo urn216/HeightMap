@@ -3,12 +3,15 @@ package code.core;
 import java.awt.image.BufferedImage;
 
 import code.generation.Chunk;
+import code.models.Ring;
 import mki.io.FileIO;
+import mki.math.vector.Vector2I;
 import mki.math.vector.Vector3;
 import mki.rendering.Constants;
 import mki.rendering.renderers.Renderer;
 import mki.ui.control.UIController;
 import mki.world.Camera3D;
+// import mki.world.Material;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -22,7 +25,9 @@ enum State {
 
 public abstract class Core {
 
-  public static final Window WINDOW = new Window("3D Test", (x, y) -> {});
+  public static final Window WINDOW = new Window("Heightmap", (x, y) -> {});
+  
+  public static final Settings GLOBAL_SETTINGS = new Settings();
   
   private static final long TICKS_PER_SECOND = 60;
   private static final long MILLISECONDS_PER_TICK = 900/TICKS_PER_SECOND;
@@ -36,22 +41,29 @@ public abstract class Core {
   
   private static boolean quit = false;
 
-  public static double MAP_SCALE = 1;
-  public static final int MAP_OCTAVES  = 10;
+  public static double MAP_RANGE_SCALE  = 1000;
+  public static double MAP_HEIGHT_SCALE = 3000;
+  public static final int MAP_OCTAVES   = 20;
   // public static double MAP_SCALE = 1/Math.pow(2, 55);
+
+  public static final int FULL_BRIGHT = ~0;
+  public static final int SOME_DIM = (255<<24) | (150<<16) | (150<<8) | (150);
   
-  public static final int CHUNK_POW = 6;
+  public static final int CHUNK_POW = 7;
   public static final int CHUNK_SIZE = (int)Math.pow(2, CHUNK_POW);
-  public static final int RENDER_RADIUS = 32;
+  public static final int RENDER_RADIUS = 16;
   
   private static Camera3D cam;
-  private static double camFOVChange = -1;
+  private static double   camFOVChange = -1;
+  private static Vector2I camResChange = null;
 
   private static long pTTime = System.currentTimeMillis();
   private static long pFTime = System.currentTimeMillis();
   
   private static double fps = 0;
   private static int fCount = 0;
+
+  private static Ring menuRing;
 
   /**
    * Main method. Called on execution. Performs basic startup
@@ -60,22 +72,23 @@ public abstract class Core {
    * @throws InterruptedException if thread sleeping fails for whatever reason. Catastrophic error should kill process.
    */
   public static void main(String[] args) throws InterruptedException {
-    
-    WINDOW.setFullscreen(false);
-
     WINDOW.FRAME.setBackground(new Color(173, 173, 173));
+    
+    UIController.putPane("Main Menu", UICreator.createMain());
+    UIController.putPane("HUD"      , UICreator.createHUD ());
 
-    World.generateNewWorld();
+    // Constants.setNormalMapUse(true);
+    // Constants.setFilteringMode(Material::getBilinearFilteringTexel);
 
-    Constants.setDynamicRasterLighting(false);
-
+    camResChange = GLOBAL_SETTINGS.getVector2ISetting("v_resolution");
     cam = new Camera3D(
       new Vector3(),
-      512,
-      288,
-      80,
+      camResChange.x,
+      camResChange.y,
+      GLOBAL_SETTINGS.getDoubleSetting("v_fieldOfView"),
       Renderer.rasterizer()
     );
+    camResChange = null;
 
     playGame();
   }
@@ -99,6 +112,10 @@ public abstract class Core {
     camFOVChange = f;
   }
 
+  public static void setResolution(Vector2I v) {
+    camResChange = v;
+  }
+
   public static void printChunkToFiles() {
     Chunk c = World.getChunks()[RENDER_RADIUS][RENDER_RADIUS];
     FileIO.writeImage("../results/terrain_map.png", c.getImg());
@@ -107,17 +124,31 @@ public abstract class Core {
   }
 
   public static void quitToMenu() {
+    World.endWorld();
+
+    Constants.setFogUse(false);
+
+    menuRing = new Ring.Surface(World.getTerrainGenerator(), 1.0/5000);
+    menuRing.setRotation(0, 26, -45);
+    menuRing.setPosition(new Vector3(1000000, -740000, 10000000));
+
     cam.setPosition(new Vector3());
     cam.resetRotation();
     Core.state = State.MAINMENU;
     UIController.setCurrentPane("Main Menu");
   }
 
-  public static void loadScene() {
-    cam.setPosition(new Vector3());
+  public static void loadScene(long seed) {
+    World.generateNewWorld(seed);
+
+    Constants.setFogUse(true);
+
+    cam.setPosition(new Vector3(0, World.returnToSpawn()+2, 0));
     cam.resetRotation();
     Core.state = State.RUN;
     UIController.setCurrentPane("HUD");
+
+    menuRing = null;
   }
   
   /**
@@ -135,18 +166,33 @@ public abstract class Core {
       long deltaTimeMillis = tickTime - pTTime;
       pTTime  = tickTime;
 
-      if (state == State.SPLASH && tickTime-START_TIME >= SPLASH_TIME) {
-        Controls.initialiseControls(WINDOW.FRAME);
-        loadScene();
-      }
-      else if (state == State.RUN) {
-        Controls.doInput(deltaTimeMillis, cam);
-        cam.draw();
+      switch (state) {
+        case SPLASH:
+          if (tickTime-START_TIME >= SPLASH_TIME) {
+            Controls.initialiseControls(WINDOW.FRAME);
+            quitToMenu();
+          }
+        break;
+        case MAINMENU:
+          menuRing.offsetPitch(0.01);
+          cam.draw();
+        break;
+        case RUN:
+          Controls.doInput(deltaTimeMillis, cam);
+          World.handleChunkInsertion();
+        default:
+          cam.draw();
+        break;
       }
 
       if (camFOVChange > 0) {
         cam.setFieldOfView(camFOVChange);
         camFOVChange = -1;
+      }
+
+      if (camResChange != null) {
+        cam.setImageDimensions(camResChange.x, camResChange.y);
+        camResChange = null;
       }
 
       if (quit) {
@@ -182,7 +228,7 @@ public abstract class Core {
 
     if (cFTime-pFTime >= 1000) {
       fps = fCount*1000.0/(cFTime-pFTime);
-      System.out.println(fps);
+      // System.out.println(fps);
       pFTime = cFTime;
       fCount=0;
     }

@@ -124,7 +124,7 @@ abstract class Controls {
       public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
         
-        // if (UIController.getActiveTextfield() != null && !KEY_DOWN[KeyEvent.VK_CONTROL]) UIController.typeKey(e);
+        if (UIController.getActiveTextfield() != null && !KEY_DOWN[KeyEvent.VK_CONTROL]) UIController.typeKey(e);
         
         if(KEY_DOWN[keyCode]) return; //Key already in
         KEY_DOWN[keyCode] = true;
@@ -138,18 +138,21 @@ abstract class Controls {
           UIController.back();
           break;
           case KeyEvent.VK_EQUALS:
-          Core.MAP_SCALE*=2;
+          Core.MAP_RANGE_SCALE*=2;
           World.regenChunks();
-          System.out.println(Core.MAP_SCALE);
+          System.out.println(Core.MAP_RANGE_SCALE);
           break;
           case KeyEvent.VK_MINUS:
-          Core.MAP_SCALE*=0.5;
+          Core.MAP_RANGE_SCALE*=0.5;
           World.regenChunks();
-          System.out.println(Core.MAP_SCALE);
+          System.out.println(Core.MAP_RANGE_SCALE);
           break;
           case KeyEvent.VK_ENTER:
           UIController.press();
           Core.printChunkToFiles();
+          break;
+          case KeyEvent.VK_R:
+          World.toggleRing();
           break;
           default:
           break;
@@ -204,6 +207,11 @@ abstract class Controls {
     if (Controls.KEY_DOWN[KeyEvent.VK_DOWN])  {cam.offsetPitch( 0.1*deltaTimeMillis);}
     if (Controls.KEY_DOWN[KeyEvent.VK_LEFT])  {cam.offsetYaw  (-0.1*deltaTimeMillis);}
     if (Controls.KEY_DOWN[KeyEvent.VK_RIGHT]) {cam.offsetYaw  ( 0.1*deltaTimeMillis);}
+
+    if (Controls.KEY_DOWN[KeyEvent.VK_H]) {
+      Controls.KEY_DOWN[KeyEvent.VK_H] = false;
+      cam.setPosition(new Vector3(0, World.returnToSpawn()+2, 0));
+    }
 
     if (Controls.mouseOff.x != 0 || Controls.mouseOff.y != 0) {
       cam.offsetPitch(Controls.mouseOff.y*0.25);

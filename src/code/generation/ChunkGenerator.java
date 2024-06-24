@@ -2,14 +2,15 @@ package code.generation;
 
 import code.core.Core;
 import code.core.World;
-import mki.math.vector.Vector3;
-import mki.world.RigidBody;
+import code.models.Ring;
 
 public class ChunkGenerator extends Thread {
 
   private volatile boolean active = true;
 
   private volatile boolean resetGeneration = false;
+
+  private volatile boolean generateRing = false;
 
   public ChunkGenerator() {
     super("Chunk-Generator");
@@ -29,6 +30,12 @@ public class ChunkGenerator extends Thread {
     int j = 0; // vertical step through current drawing square
 
     while (active) {
+      // special case. Generate Ring if necessary. Frees up main loop from this intensive task.
+      if (generateRing) {
+        World.setRing(new Ring.WithWalls(World.getTerrainGenerator()));
+        generateRing = false;
+      }
+
       Chunk[][] chunks = World.getChunks();
 
       // reset from middle if we need to
@@ -44,12 +51,15 @@ public class ChunkGenerator extends Thread {
         int gX = World.getCentreChunkX();
         int gZ = World.getCentreChunkZ();
 
-        Chunk c = new Chunk(World.getTerrainGenerator(), gX-chunks[y].length/2+x, gZ-chunks.length/2+y, detail);
-        chunks[y][x] = c;
-        RigidBody b = c.getBody();
-        b.setPosition(new Vector3((x-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE, 0, (y-Core.RENDER_RADIUS+0.5)*Core.CHUNK_SIZE));
+        World.insertChunk(new Chunk(World.getTerrainGenerator(), gX-chunks[y].length/2+x, gZ-chunks.length/2+y, detail));
       }
-      else chunks[y][x].setVertexDensity(detail);
+      // otherwise set LOD for the preexisting chunk
+      else {
+        chunks[y][x].setVertexDensity(detail);
+        // chunks[y][x].getBody().getModel().getMat().setBaseColour(
+        //   (x == Core.RENDER_RADIUS && y == Core.RENDER_RADIUS) ? Core.FULL_BRIGHT : Core.SOME_DIM
+        // );
+      }
 
       i++;
       if (i<s) continue; // pseudo for-loop
@@ -69,5 +79,15 @@ public class ChunkGenerator extends Thread {
 
   public void resetGeneration() {
     this.resetGeneration = true;
+  }
+
+  public void ackReset() {
+    if (!this.isAlive()) return;
+    while (this.resetGeneration) {}
+    return;
+  }
+
+  public void generateRing() {
+    this.generateRing = true;
   }
 }

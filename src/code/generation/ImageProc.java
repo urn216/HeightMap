@@ -124,7 +124,7 @@ public abstract class ImageProc {
    */
   public static BufferedImage mapToImage(float[] map, int w, int h) {
     int DETAIL = 1;
-    double NOISE_RANGE = 1;
+    double NOISE_RANGE = 3;
     BufferedImage img = new BufferedImage(w*DETAIL, h*DETAIL, BufferedImage.TYPE_INT_ARGB);
     int[] rgbArray = new int[map.length*DETAIL*DETAIL];
 
@@ -133,19 +133,19 @@ public abstract class ImageProc {
       for (int j = 0; j < DETAIL*DETAIL; j++) {
         int k = (i%w)*DETAIL+(j%DETAIL)+((i/w)*DETAIL+(j/DETAIL))*w*DETAIL;
         
-        int adjHeight = MathHelp.clamp((int)(height * 1+Math.random()*NOISE_RANGE-NOISE_RANGE/2), 0, 255);
+        int adj = MathHelp.clamp((int)(height + (Math.random()-0.5)*NOISE_RANGE), 0, 255)-height;
         // int adjHeight = height;
 
         rgbArray[k] = 255 << 24;
 
         if (height <= SAND_WATER_BOUND)      // OCEAN
-          rgbArray[k] |= Math.max(0,   adjHeight -  81) << 16 | Math.max(0, 2*adjHeight - 140) <<  8 | adjHeight/2 + 83;
+          rgbArray[k] |= Math.max(0,   height + adj -  81) << 16 | Math.max(0, 2*height + adj - 140) <<  8 | height/2 + adj + 83;
         else if (height <= GRASS_SAND_BOUND) // SAND
-          rgbArray[k] |=  52+adjHeight   << 16 |  47+adjHeight   << 8 |   4+adjHeight  ;
+          rgbArray[k] |=  52+height   + adj << 16 |  47+height   + adj << 8 |   4+height   + adj;
         else if (height <= SNOW_GRASS_BOUND) // LAND
-          rgbArray[k] |=  36+adjHeight/4 << 16 | 200-adjHeight/3 << 8 |  20+adjHeight/4;
+          rgbArray[k] |=  36+height/4 + adj << 16 | 200-height/3 + adj << 8 |  20+height/4 + adj;
         else                                 // PEAKS
-          rgbArray[k] |=-255+adjHeight*2 << 16 |-255+adjHeight*2 << 8 |-255+adjHeight*2;
+          rgbArray[k] |=-255+height*2 + adj << 16 |-255+height*2 + adj << 8 |-255+height*2 + adj;
       }
     }
 

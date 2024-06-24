@@ -1,0 +1,6 @@
+g_ringworld false
+v_fieldOfView 80.0
+v_fullScreen false
+v_fancylighting false
+v_normalmapping false
+v_resolution (512, 288)

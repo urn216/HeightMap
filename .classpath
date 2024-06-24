@@ -12,6 +12,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/Heightmap/lib/Utilities-1.0.2/Utilities-1.0.2-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/3DLib-0.0.3/3DLib-0.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/3DLib-0.0.4/3DLib-0.0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
